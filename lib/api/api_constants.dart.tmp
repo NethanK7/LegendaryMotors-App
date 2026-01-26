@@ -1,0 +1,2 @@
+  static const String paymentIntentEndpoint = '/create-payment-intent';
+  static const String stripePublishableKey = 'pk_test_51ShkzKPrDANuqBCV32U2MxF8prt3wJXfCvE4xIj0r5JpBCknNroGhzkRFXViGXRGNMqgvDA8uJzLhrR6XDkzW6u100SKMO8DvN';
