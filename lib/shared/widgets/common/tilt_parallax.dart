@@ -44,7 +44,7 @@ class _TiltParallaxState extends State<TiltParallax> {
       duration: const Duration(milliseconds: 100),
       curve: Curves.easeOut,
       transform: Matrix4.identity()
-        ..translateByDouble(_x * widget.intensity, _y * widget.intensity)
+        ..translateByDouble(_x * widget.intensity, _y * widget.intensity, 0.0)
         ..rotateX(_y * 0.05)
         ..rotateY(_x * 0.05),
       child: widget.child,
