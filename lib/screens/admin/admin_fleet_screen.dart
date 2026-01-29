@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import '../../shared/models/car.dart';
 import '../../services/car_service.dart';
 import '../../providers/inventory_provider.dart';
+import '../../shared/widgets/layout/premium_app_bar.dart';
+import '../../shared/widgets/common/premium_badge.dart';
 
 class AdminFleetScreen extends StatefulWidget {
   const AdminFleetScreen({super.key});
@@ -41,16 +43,8 @@ class _AdminFleetScreenState extends State<AdminFleetScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          'FLEET MANAGEMENT',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-            color: Colors.white,
-          ),
-        ),
+      appBar: PremiumAppBar(
+        title: 'FLEET MANAGEMENT',
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
@@ -116,9 +110,9 @@ class _AdminFleetScreenState extends State<AdminFleetScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: Text(
-                      '\$${car.price}',
-                      style: const TextStyle(color: Colors.grey),
+                    subtitle: PremiumBadge(
+                      text: '\$${car.price.toInt()}',
+                      color: Colors.white10,
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,

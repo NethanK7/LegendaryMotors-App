@@ -8,6 +8,8 @@ class PremiumButton extends StatelessWidget {
   final bool isLoading;
   final bool isPrimary;
   final IconData? icon;
+  final double? width;
+  final EdgeInsetsGeometry? padding;
 
   const PremiumButton({
     super.key,
@@ -16,6 +18,8 @@ class PremiumButton extends StatelessWidget {
     this.isLoading = false,
     this.isPrimary = true,
     this.icon,
+    this.width = double.infinity,
+    this.padding,
   });
 
   @override
@@ -24,7 +28,7 @@ class PremiumButton extends StatelessWidget {
     final foregroundColor = isPrimary ? Colors.white : Colors.black;
 
     return SizedBox(
-      width: double.infinity,
+      width: width,
       height: 50,
       child: ElevatedButton(
         onPressed: isLoading
@@ -36,6 +40,7 @@ class PremiumButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           foregroundColor: foregroundColor,
+          padding: padding,
           shape: const RoundedRectangleBorder(),
           elevation: 0,
         ),
@@ -49,10 +54,11 @@ class PremiumButton extends StatelessWidget {
                 ),
               )
             : Row(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, color: foregroundColor),
+                    Icon(icon, color: foregroundColor, size: 20),
                     const SizedBox(width: 8),
                   ],
                   Text(
@@ -61,6 +67,7 @@ class PremiumButton extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.5,
                       color: foregroundColor,
+                      fontSize: 12,
                     ),
                   ),
                 ],

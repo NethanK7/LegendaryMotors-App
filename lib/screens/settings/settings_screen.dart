@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../shared/widgets/layout/sliver_page_header.dart';
 import '../../shared/widgets/common/premium_list_tile.dart';
 import '../../shared/widgets/common/section_label.dart';
+import '../../shared/widgets/common/premium_button.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -75,21 +76,16 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 48),
-                        TextButton(
+                        PremiumButton(
+                          text: 'LOGOUT',
                           onPressed: () {
                             Provider.of<AuthProvider>(
                               context,
                               listen: false,
                             ).logout();
                           },
-                          child: Text(
-                            'LOGOUT',
-                            style: GoogleFonts.inter(
-                              color: const Color(0xFFE30613),
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
+                          isPrimary: false,
+                          width: 160,
                         ),
                       ],
                     ),
@@ -182,21 +178,16 @@ class SettingsScreen extends StatelessWidget {
 
                     const SizedBox(height: 48),
                     Center(
-                      child: TextButton(
+                      child: PremiumButton(
+                        text: 'LOGOUT',
                         onPressed: () {
                           Provider.of<AuthProvider>(
                             context,
                             listen: false,
                           ).logout();
                         },
-                        child: Text(
-                          'LOGOUT',
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFFE30613),
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.0,
-                          ),
-                        ),
+                        isPrimary: false,
+                        width: 200,
                       ),
                     ),
                     const SizedBox(height: 24),

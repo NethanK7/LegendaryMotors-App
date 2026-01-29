@@ -13,25 +13,39 @@ class SectionHeader extends StatelessWidget {
     final onSurface = theme.colorScheme.onSurface;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 12),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.inter(
-              color: onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Container(width: 4, height: 16, color: const Color(0xFFE30613)),
+              const SizedBox(width: 8),
+              Text(
+                title.toUpperCase(),
+                style: GoogleFonts.inter(
+                  color: onSurface,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
           ),
           if (onMoreTap != null)
             GestureDetector(
               onTap: onMoreTap,
-              child: Icon(
-                Icons.arrow_forward_ios,
-                color: onSurface.withValues(alpha: 0.5),
-                size: 14,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: onSurface.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: onSurface.withValues(alpha: 0.5),
+                  size: 10,
+                ),
               ),
             ),
         ],

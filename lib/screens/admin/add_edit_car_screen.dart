@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import '../../shared/models/car.dart';
 import '../../services/car_service.dart';
 import '../../providers/inventory_provider.dart';
+import '../../shared/widgets/common/premium_button.dart';
+import '../../shared/widgets/common/premium_text_field.dart';
+import '../../shared/widgets/common/premium_dropdown.dart';
+import '../../shared/widgets/common/section_label.dart';
+import '../../shared/widgets/layout/premium_app_bar.dart';
 
 class AddEditCarScreen extends StatefulWidget {
   final int? carId;
@@ -158,179 +163,178 @@ class _AddEditCarScreenState extends State<AddEditCarScreen> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        title: Text(
-          isEditing ? 'EDIT VEHICLE' : 'NEW ACQUISITION',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-            letterSpacing: 1.0,
-            fontSize: 16,
-          ),
-        ),
+      appBar: PremiumAppBar(
+        title: isEditing ? 'EDIT VEHICLE' : 'NEW ACQUISITION',
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(vertical: 24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionHeader('VEHICLE IDENTITY'),
+              const SectionLabel(title: 'VEHICLE IDENTITY'),
               const SizedBox(height: 16),
-              _buildTextField(
-                label: 'Brand',
-                controller: _brandController,
-                placeholder: 'e.g. BRABUS',
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Brand is required' : null,
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                label: 'Model Designation',
-                controller: _modelController,
-                placeholder: 'e.g. ROCKET 1000',
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Model is required' : null,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    PremiumTextField(
+                      label: 'Brand',
+                      controller: _brandController,
+                      hintText: 'e.g. BRABUS',
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Brand is required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    PremiumTextField(
+                      label: 'Model Designation',
+                      controller: _modelController,
+                      hintText: 'e.g. ROCKET 1000',
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Model is required' : null,
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 32),
-              _buildSectionHeader('SPECIFICATIONS & STATUS'),
+              const SectionLabel(title: 'SPECIFICATIONS & STATUS'),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      label: 'Year',
-                      controller: _yearController,
-                      isNumber: true,
-                      placeholder: '2024',
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: PremiumTextField(
+                            label: 'Year',
+                            controller: _yearController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            hintText: '2024',
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'Required';
+                              final n = int.tryParse(v);
+                              if (n == null || n < 1900 || n > 2100) {
+                                return 'Invalid Year';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: PremiumTextField(
+                            label: 'Price (USD)',
+                            controller: _priceController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            hintText: '500000',
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'Required';
+                              if (double.tryParse(v) == null) {
+                                return 'Invalid Amount';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: PremiumDropdown(
+                            label: 'Category',
+                            value: _categoryController.text,
+                            items: _categoryOptions,
+                            onChanged: (val) =>
+                                setState(() => _categoryController.text = val!),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: PremiumDropdown(
+                            label: 'Status',
+                            value: _statusController.text,
+                            items: _statusOptions,
+                            onChanged: (val) =>
+                                setState(() => _statusController.text = val!),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+              const SectionLabel(title: 'MEDIA ASSETS'),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    PremiumTextField(
+                      label: 'Image URL',
+                      controller: _imageUrlController,
+                      hintText: 'https://...',
+                      maxLines: 2,
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'Required';
-                        final n = int.tryParse(v);
-                        if (n == null || n < 1900 || n > 2100) {
-                          return 'Invalid Year';
+                        if (v == null || v.isEmpty) {
+                          return 'Image URL is required';
                         }
+                        if (!v.startsWith('http')) return 'Must be a valid URL';
                         return null;
                       },
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      label: 'Price (USD)',
-                      controller: _priceController,
-                      isNumber: true,
-                      placeholder: '500000',
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Required';
-                        if (double.tryParse(v) == null) return 'Invalid Amount';
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildDropdown(
-                      label: 'Category',
-                      value: _categoryController.text,
-                      items: _categoryOptions,
-                      onChanged: (val) =>
-                          setState(() => _categoryController.text = val!),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildDropdown(
-                      label: 'Status',
-                      value: _statusController.text,
-                      items: _statusOptions,
-                      onChanged: (val) =>
-                          setState(() => _statusController.text = val!),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-              _buildSectionHeader('MEDIA ASSETS'),
-              const SizedBox(height: 16),
-              _buildTextField(
-                label: 'Image URL',
-                controller: _imageUrlController,
-                placeholder: 'https://...',
-                maxLines: 2,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Image URL is required';
-                  if (!v.startsWith('http')) return 'Must be a valid URL';
-                  return null;
-                },
-              ),
-              if (_imageUrlController.text.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      _imageUrlController.text,
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: 200,
-                        width: double.infinity,
-                        color: Colors.grey[900],
-                        child: const Center(
-                          child: Icon(Icons.broken_image, color: Colors.grey),
+                    if (_imageUrlController.text.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            _imageUrlController.text,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  height: 200,
+                                  width: double.infinity,
+                                  color: Colors.grey[900],
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                  ],
                 ),
+              ),
 
               const SizedBox(height: 48),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE30613),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: _isLoading ? null : _submit,
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          isEditing
-                              ? 'UPDATE MASTERPIECE'
-                              : 'ADD TO COLLECTION',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
-                            fontSize: 14,
-                          ),
-                        ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: PremiumButton(
+                  text: isEditing ? 'UPDATE MASTERPIECE' : 'ADD TO COLLECTION',
+                  onPressed: _submit,
+                  isLoading: _isLoading,
                 ),
               ),
               const SizedBox(height: 24),
@@ -338,147 +342,6 @@ class _AddEditCarScreenState extends State<AddEditCarScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            color: const Color(0xFFE30613),
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2.0,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Divider(color: Colors.white24, height: 1),
-      ],
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    bool isNumber = false,
-    String? placeholder,
-    int maxLines = 1,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: GoogleFonts.inter(
-            color: Colors.grey[400],
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-          maxLines: maxLines,
-          inputFormatters: isNumber
-              ? [FilteringTextInputFormatter.digitsOnly]
-              : null,
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: InputDecoration(
-            hintText: placeholder,
-            hintStyle: GoogleFonts.inter(color: Colors.white24),
-            filled: true,
-            fillColor: const Color(0xFF111111),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Colors.white12),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Color(0xFFE30613)),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Colors.red),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Colors.red),
-            ),
-          ),
-          validator: validator,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDropdown({
-    required String label,
-    required String value,
-    required List<String> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: GoogleFonts.inter(
-            color: Colors.grey[400],
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: items.contains(value) ? value : items.first,
-          items: items
-              .map(
-                (e) => DropdownMenuItem(
-                  value: e,
-                  child: Text(e, style: GoogleFonts.inter(color: Colors.white)),
-                ),
-              )
-              .toList(),
-          onChanged: onChanged,
-          dropdownColor: const Color(0xFF111111),
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xFF111111),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Colors.white12),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Color(0xFFE30613)),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

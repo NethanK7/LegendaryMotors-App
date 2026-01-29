@@ -6,7 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/common/premium_button.dart';
 import '../../shared/widgets/common/premium_text_field.dart';
-import '../../shared/widgets/common/glass_container.dart';
+import '../../shared/widgets/layout/auth_layout.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -73,162 +73,83 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          final isLandscape = orientation == Orientation.landscape;
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              // Dynamic Background
-              Image.network(
-                'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop',
-                fit: BoxFit.cover,
-                color: Colors.black.withValues(alpha: 0.7),
-                colorBlendMode: BlendMode.darken,
-              ).animate().fadeIn(duration: 1000.ms),
-
-              Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isLandscape ? 500 : 400,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Logo Section
-                        Column(
-                          children: [
-                            const Icon(
-                              Icons.speed,
-                              color: Color(0xFFE30613),
-                              size: 48,
-                            ).animate().scale(delay: 200.ms, duration: 400.ms),
-                            const SizedBox(height: 16),
-                            Text(
-                                  'LEGENDARY\nMOTORS',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                    height: 0.9,
-                                    letterSpacing: -1.0,
-                                  ),
-                                )
-                                .animate()
-                                .fadeIn(delay: 400.ms)
-                                .moveY(begin: 20, end: 0),
-                            const SizedBox(height: 12),
-                            Text(
-                              'The Pinnacle of Automotive Engineering',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                color: Colors.grey,
-                                fontSize: 12,
-                                letterSpacing: 1.0,
-                              ),
-                            ).animate().fadeIn(delay: 600.ms),
-                          ],
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        // Glassmorphism Form Container
-                        GlassContainer(
-                          borderRadius: BorderRadius.circular(
-                            0,
-                          ), // Sharp Brabus style
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                PremiumTextField(
-                                  label: 'EMAIL',
-                                  controller: _emailController,
-                                  keyboardType: TextInputType.emailAddress,
-                                ),
-                                const SizedBox(height: 24),
-                                PremiumTextField(
-                                  label: 'PASSWORD',
-                                  controller: _passwordController,
-                                  isPassword: true,
-                                ),
-                                const SizedBox(height: 32),
-                                PremiumButton(
-                                  text: 'ENTER SHOWROOM',
-                                  onPressed: _handleLogin,
-                                  isLoading: _isLoading,
-                                  isPrimary: true,
-                                ),
-                                const SizedBox(height: 16),
-                                PremiumButton(
-                                  text: 'LOGIN WITH GOOGLE',
-                                  onPressed: _handleGoogleLogin,
-                                  isLoading:
-                                      _isLoading, // Share loading state or separate? Assuming shared for now
-                                  isPrimary: false,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ).animate().fadeIn(delay: 800.ms).moveY(begin: 30, end: 0),
-
-                        const SizedBox(height: 24),
-
-                        // Debug Quick Login
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _debugButton(
-                              'USER',
-                              'test@example.com',
-                              'password',
-                            ),
-                            const SizedBox(width: 16),
-                            _debugButton('ADMIN', 'admin@admin.com', '123456'),
-                          ],
-                        ).animate().fadeIn(delay: 1000.ms),
-
-                        const SizedBox(height: 24),
-
-                        Center(
-                          child: TextButton(
-                            onPressed: () => context.push('/register'),
-                            child: RichText(
-                              text: TextSpan(
-                                text: 'NEW TO LEGENDARY? ',
-                                style: GoogleFonts.inter(
-                                  color: Colors.grey,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text: 'CREATE ACCOUNT',
-                                    style: GoogleFonts.inter(
-                                      color: Colors.white,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+    return AuthLayout(
+      title: 'LEGENDARY\nMOTORS',
+      subtitle: 'The Pinnacle of Automotive Engineering',
+      backgroundUrl:
+          'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop',
+      logo: const Icon(
+        Icons.speed,
+        color: Color(0xFFE30613),
+        size: 48,
+      ).animate().scale(delay: 200.ms, duration: 400.ms),
+      footerActions: [
+        // Debug Quick Login
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _debugButton('USER', 'test@example.com', 'password'),
+            const SizedBox(width: 16),
+            _debugButton('ADMIN', 'admin@admin.com', '123456'),
+          ],
+        ).animate().fadeIn(delay: 1000.ms),
+        const SizedBox(height: 24),
+        Center(
+          child: TextButton(
+            onPressed: () => context.push('/register'),
+            child: RichText(
+              text: TextSpan(
+                text: 'NEW TO LEGENDARY? ',
+                style: GoogleFonts.inter(
+                  color: Colors.grey,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'CREATE ACCOUNT',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ),
+      ],
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            PremiumTextField(
+              label: 'EMAIL',
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 24),
+            PremiumTextField(
+              label: 'PASSWORD',
+              controller: _passwordController,
+              isPassword: true,
+            ),
+            const SizedBox(height: 32),
+            PremiumButton(
+              text: 'ENTER SHOWROOM',
+              onPressed: _handleLogin,
+              isLoading: _isLoading,
+              isPrimary: true,
+            ),
+            const SizedBox(height: 16),
+            PremiumButton(
+              text: 'LOGIN WITH GOOGLE',
+              onPressed: _handleGoogleLogin,
+              isLoading: _isLoading,
+              isPrimary: false,
+            ),
+          ],
+        ),
       ),
     );
   }

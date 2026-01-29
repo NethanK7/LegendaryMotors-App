@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../shared/widgets/layout/premium_app_bar.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -8,20 +9,7 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(
-          'LEGACY & VISION',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2.0,
-            fontSize: 14,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
+      appBar: PremiumAppBar(title: 'LEGACY & VISION'),
       body: SingleChildScrollView(
         child: Column(
           children: [

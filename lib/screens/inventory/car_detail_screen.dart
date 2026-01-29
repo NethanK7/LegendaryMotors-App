@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../shared/models/car.dart';
 import '../../providers/favorites_provider.dart';
 import '../../providers/inventory_provider.dart';
+import '../../shared/widgets/car/car_spec_item.dart';
+import '../../shared/widgets/common/premium_button.dart';
 
 class CarDetailScreen extends StatefulWidget {
   final int carId;
@@ -202,83 +204,47 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                   ),
 
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Calculate final price
-                        double addOns = 0;
-                        // Wheel prices: 0, 5000, 12000
-                        addOns += _selectedWheels == 0
-                            ? 0
-                            : _selectedWheels == 1
-                            ? 5000
-                            : 12000;
-                        // Interior prices: 0, 15000, 25000
-                        addOns += _selectedInterior == 0
-                            ? 0
-                            : _selectedInterior == 1
-                            ? 15000
-                            : 25000;
-                        // Color prices: Black/White 0, Grey 2000, Red 5000
-                        addOns += _selectedColor <= 1
-                            ? 0
-                            : _selectedColor == 2
-                            ? 2000
-                            : 5000;
+                  PremiumButton(
+                    text: 'CONFIRM & REQUEST',
+                    onPressed: () {
+                      // Calculate final price
+                      double addOns = 0;
+                      // Wheel prices: 0, 5000, 12000
+                      addOns += _selectedWheels == 0
+                          ? 0
+                          : _selectedWheels == 1
+                          ? 5000
+                          : 12000;
+                      // Interior prices: 0, 15000, 25000
+                      addOns += _selectedInterior == 0
+                          ? 0
+                          : _selectedInterior == 1
+                          ? 15000
+                          : 25000;
+                      // Color prices: Black/White 0, Grey 2000, Red 5000
+                      addOns += _selectedColor <= 1
+                          ? 0
+                          : _selectedColor == 2
+                          ? 2000
+                          : 5000;
 
-                        final totalPrice = car.price + addOns;
+                      final totalPrice = car.price + addOns;
 
-                        Navigator.pop(context); // Close modal
-                        context.push(
-                          '/checkout',
-                          extra: {
-                            'car': car,
-                            'config': {
-                              'color': _colors[_selectedColor].toARGB32(),
-                              'wheels': _wheelOptions[_selectedWheels],
-                              'interior': _interiorOptions[_selectedInterior],
-                              'totalPrice': totalPrice,
-                            },
+                      Navigator.pop(context); // Close modal
+                      context.push(
+                        '/checkout',
+                        extra: {
+                          'car': car,
+                          'config': {
+                            'color': _colors[_selectedColor].toARGB32(),
+                            'wheels': _wheelOptions[_selectedWheels],
+                            'interior': _interiorOptions[_selectedInterior],
+                            'totalPrice': totalPrice,
                           },
-                        ); // Proceed
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        shape: const RoundedRectangleBorder(),
-                      ),
-                      child: Builder(
-                        builder: (context) {
-                          double addOns = 0;
-                          addOns += _selectedWheels == 0
-                              ? 0
-                              : _selectedWheels == 1
-                              ? 5000
-                              : 12000;
-                          addOns += _selectedInterior == 0
-                              ? 0
-                              : _selectedInterior == 1
-                              ? 15000
-                              : 25000;
-                          addOns += _selectedColor <= 1
-                              ? 0
-                              : _selectedColor == 2
-                              ? 2000
-                              : 5000;
-                          final total = car.price + addOns;
-
-                          return Text(
-                            'CONFIRM & REQUEST (\$${total.toStringAsFixed(0)})',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.0,
-                            ),
-                          );
                         },
-                      ),
-                    ),
+                      ); // Proceed
+                    },
+                    isPrimary: false, // White background style as per original
                   ),
                 ],
               ),
@@ -326,18 +292,19 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
     final car = displayCar;
     final favoritesProvider = context.watch<FavoritesProvider>();
-    final boolisFavorite = favoritesProvider.favorites.any(
-      (f) => f.id == car.id,
-    );
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: OrientationBuilder(
         builder: (context, orientation) {
+          final isFavorite = favoritesProvider.favorites.any(
+            (f) => f.id == car.id,
+          );
+
           if (orientation == Orientation.landscape) {
             return _buildLandscapeLayout(
               car,
-              boolisFavorite,
+              isFavorite,
               isDark,
               onSurface,
               theme,
@@ -345,7 +312,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
           } else {
             return _buildPortraitLayout(
               car,
-              boolisFavorite,
+              isFavorite,
               isDark,
               onSurface,
               theme,
@@ -358,7 +325,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
   Widget _buildPortraitLayout(
     Car car,
-    bool boolisFavorite,
+    bool isFavorite,
     bool isDark,
     Color onSurface,
     ThemeData theme,
@@ -376,7 +343,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                 const SizedBox(height: 24),
                 _buildSpecs(car, onSurface),
                 const SizedBox(height: 32),
-                _buildActions(car, boolisFavorite, onSurface, theme),
+                _buildActions(car, isFavorite, onSurface, theme),
                 const SizedBox(height: 32),
                 _buildDescription(car, onSurface),
                 const SizedBox(height: 100),
@@ -390,7 +357,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
   Widget _buildLandscapeLayout(
     Car car,
-    bool boolisFavorite,
+    bool isFavorite,
     bool isDark,
     Color onSurface,
     ThemeData theme,
@@ -435,7 +402,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                 const SizedBox(height: 24),
                 _buildSpecs(car, onSurface),
                 const SizedBox(height: 32),
-                _buildActions(car, boolisFavorite, onSurface, theme),
+                _buildActions(car, isFavorite, onSurface, theme),
                 const SizedBox(height: 32),
                 _buildDescription(car, onSurface),
               ],
@@ -485,99 +452,38 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   Widget _buildSpecs(Car car, Color onSurface) {
     return Row(
       children: [
-        _buildSpecItem('${car.specs['hp'] ?? 'N/A'}', 'HP', onSurface),
+        CarSpecItem(value: '${car.specs['hp'] ?? 'N/A'}', label: 'HP'),
         const SizedBox(width: 32),
-        _buildSpecItem('${car.specs['0_60'] ?? 'N/A'}s', '0-60', onSurface),
+        CarSpecItem(value: '${car.specs['0_60'] ?? 'N/A'}s', label: '0-60'),
         const SizedBox(width: 32),
-        _buildSpecItem('${car.specs['top_speed'] ?? 'N/A'}', 'MPH', onSurface),
-      ],
-    );
-  }
-
-  Widget _buildSpecItem(String value, String label, Color onSurface) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style: GoogleFonts.inter(
-            color: onSurface,
-            fontSize: 24,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            color: onSurface.withValues(alpha: 0.5),
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-          ),
-        ),
+        CarSpecItem(value: '${car.specs['top_speed'] ?? 'N/A'}', label: 'MPH'),
       ],
     );
   }
 
   Widget _buildActions(
     Car car,
-    bool boolisFavorite,
+    bool isFavorite,
     Color onSurface,
     ThemeData theme,
   ) {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => _showConfigurator(car),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE30613),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            child: Text(
-              'CONFIGURE & ORDER',
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 14,
-                letterSpacing: 1.0,
-              ),
-            ),
-          ),
+        PremiumButton(
+          text: 'CONFIGURE & ORDER',
+          onPressed: () => _showConfigurator(car),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Provider.of<FavoritesProvider>(
-                    context,
-                    listen: false,
-                  ).toggleFavorite(car.id);
-                },
-                icon: Icon(
-                  boolisFavorite ? Icons.check : Icons.add,
-                  color: onSurface,
-                ),
-                label: Text(
-                  "MY LIST",
-                  style: GoogleFonts.inter(color: onSurface),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: onSurface.withValues(alpha: 0.2)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
+        PremiumButton(
+          text: isFavorite ? "ON MY LIST" : "ADD TO LIST",
+          onPressed: () {
+            Provider.of<FavoritesProvider>(
+              context,
+              listen: false,
+            ).toggleFavorite(car.id);
+          },
+          icon: isFavorite ? Icons.check : Icons.add,
+          isPrimary: false,
         ),
       ],
     );

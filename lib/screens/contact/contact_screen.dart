@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../api/api_constants.dart';
 import '../../api/api_client.dart';
+import '../../shared/widgets/layout/premium_app_bar.dart';
+import '../../shared/widgets/common/premium_text_field.dart';
+import '../../shared/widgets/common/premium_button.dart';
 
 class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
@@ -85,19 +88,7 @@ class _ContactScreenState extends State<ContactScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(
-          'CONCIERGE',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2.0,
-            fontSize: 16,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
+      appBar: PremiumAppBar(title: 'CONCIERGE'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -121,50 +112,35 @@ class _ContactScreenState extends State<ContactScreen> {
               ),
               const SizedBox(height: 48),
 
-              _buildInput('FULL NAME', _nameController),
-              const SizedBox(height: 24),
-              _buildInput(
-                'EMAIL ADDRESS',
-                _emailController,
-                TextInputType.emailAddress,
+              PremiumTextField(
+                label: 'Full Name',
+                controller: _nameController,
+                hintText: 'John Doe',
+                validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 24),
-              _buildInput(
-                'MESSAGE',
-                _messageController,
-                TextInputType.multiline,
-                5,
+              PremiumTextField(
+                label: 'Email Address',
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                hintText: 'john@example.com',
+                validator: (v) => v!.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 24),
+              PremiumTextField(
+                label: 'Message',
+                controller: _messageController,
+                maxLines: 5,
+                hintText: 'How can we help you?',
+                validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
 
               const SizedBox(height: 48),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submitContent,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE30613),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: const RoundedRectangleBorder(),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(
-                          'SEND INQUIRY',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                ),
+              PremiumButton(
+                text: 'SEND INQUIRY',
+                onPressed: _submitContent,
+                isLoading: _isLoading,
               ),
               const SizedBox(height: 24),
               Center(
@@ -181,49 +157,6 @@ class _ContactScreenState extends State<ContactScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInput(
-    String label,
-    TextEditingController controller, [
-    TextInputType? type,
-    int maxLines = 1,
-  ]) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            color: const Color(0xFFE30613),
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: type,
-          maxLines: maxLines,
-          style: GoogleFonts.inter(color: Colors.white),
-          cursorColor: const Color(0xFFE30613),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xFF111111),
-            border: const OutlineInputBorder(borderSide: BorderSide.none),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFE30613)),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-          ),
-          validator: (v) => v!.isEmpty ? 'Required' : null,
-        ),
-      ],
     );
   }
 }

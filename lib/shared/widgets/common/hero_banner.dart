@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/car.dart';
 import '../../controllers/sensors_controller.dart';
+import 'premium_button.dart';
 
 class HeroBanner extends StatelessWidget {
   final Car? featured;
@@ -152,59 +153,25 @@ class HeroBannerContent extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Play Button Style (Details)
-                      ElevatedButton.icon(
+                      PremiumButton(
+                        text: 'DETAILS',
                         onPressed: () => context.push(
                           '/inventory/car/${featured.id}',
                           extra: featured,
                         ),
-                        icon: Icon(
-                          Icons.info_outline,
-                          color: isDark ? Colors.black : Colors.white,
-                        ),
-                        label: Text(
-                          'DETAILS',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.black : Colors.white,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDark ? Colors.white : Colors.black,
-                          foregroundColor: isDark ? Colors.black : Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
+                        icon: Icons.info_outline,
+                        isPrimary: isDark, // If dark theme, primary is white
+                        width: 140,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                       const SizedBox(width: 16),
-                      // Add to List Style
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          context.push('/favorites');
-                        },
-                        icon: Icon(Icons.add, color: onSurface),
-                        label: Text(
-                          'MY LIST',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w900,
-                            color: onSurface,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: onSurface.withValues(alpha: 0.1),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
+                      PremiumButton(
+                        text: 'MY LIST',
+                        onPressed: () => context.push('/favorites'),
+                        icon: Icons.add,
+                        isPrimary: false,
+                        width: 140,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                     ],
                   ).animate().fadeIn(delay: 400.ms).moveY(begin: 20, end: 0),

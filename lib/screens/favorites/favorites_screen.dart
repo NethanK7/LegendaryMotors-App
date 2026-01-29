@@ -6,6 +6,9 @@ import '../../providers/favorites_provider.dart';
 import '../../providers/orders_provider.dart';
 import '../../shared/models/car.dart';
 import '../../shared/widgets/car/premium_car_card.dart';
+import '../../shared/widgets/status/status_view.dart';
+import '../../shared/widgets/common/premium_badge.dart';
+import '../../shared/widgets/layout/premium_app_bar.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -16,19 +19,8 @@ class FavoritesScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: Colors.black,
-        appBar: AppBar(
-          title: Text(
-            'YOUR GARAGE',
-            style: GoogleFonts.inter(
-              fontWeight: FontWeight.w900,
-              letterSpacing: 2.0,
-              fontSize: 16,
-              color: Colors.white,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.black,
-          surfaceTintColor: Colors.transparent,
+        appBar: PremiumAppBar(
+          title: 'YOUR GARAGE',
           bottom: TabBar(
             indicatorColor: const Color(0xFFE30613),
             labelColor: const Color(0xFFE30613),
@@ -81,20 +73,24 @@ class _PurchasedCarsTab extends StatelessWidget {
     }
 
     if (ordersState.error != null && ordersState.orders.isEmpty) {
-      return _ErrorView(
-        message: 'Unable to load collection',
-        onRetry: () =>
+      return StatusView(
+        icon: Icons.error_outline,
+        title: 'UNABLE TO LOAD COLLECTION',
+        message: 'There was a problem connecting to our showroom.',
+        buttonText: 'RETRY',
+        onAction: () =>
             Provider.of<OrdersProvider>(context, listen: false).fetchOrders(),
       );
     }
 
     final cars = ordersState.orders;
     if (cars.isEmpty) {
-      return const _EmptyView(
+      return StatusView(
         icon: Icons.garage_outlined,
         title: 'COLLECTION EMPTY',
         message: 'You haven\'t purchased any vehicles yet.',
         buttonText: 'VISIT SHOWROOM',
+        onAction: () => context.go('/inventory'),
       );
     }
     return _CarList(cars: cars, isPurchased: true);
@@ -115,9 +111,12 @@ class _FavoriteCarsTab extends StatelessWidget {
     }
 
     if (favoritesState.error != null && favoritesState.favorites.isEmpty) {
-      return _ErrorView(
-        message: 'Unable to load wishlist',
-        onRetry: () => Provider.of<FavoritesProvider>(
+      return StatusView(
+        icon: Icons.error_outline,
+        title: 'UNABLE TO LOAD WISHLIST',
+        message: 'There was a problem connecting to our showroom.',
+        buttonText: 'RETRY',
+        onAction: () => Provider.of<FavoritesProvider>(
           context,
           listen: false,
         ).fetchFavorites(),
@@ -126,11 +125,12 @@ class _FavoriteCarsTab extends StatelessWidget {
 
     final cars = favoritesState.favorites;
     if (cars.isEmpty) {
-      return const _EmptyView(
+      return StatusView(
         icon: Icons.favorite_border,
         title: 'WISHLIST EMPTY',
         message: 'Save your dream configurations here.',
         buttonText: 'BROWSE CARS',
+        onAction: () => context.go('/inventory'),
       );
     }
     return _CarList(cars: cars, isPurchased: false);
@@ -224,23 +224,9 @@ class _CarList extends StatelessWidget {
                             ),
                             if (isPurchased) ...[
                               const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                                child: Text(
-                                  'OWNED',
-                                  style: GoogleFonts.inter(
-                                    color: Colors.black,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                              const PremiumBadge(
+                                text: 'OWNED',
+                                color: Colors.white,
                               ),
                             ],
                           ],
@@ -259,101 +245,6 @@ class _CarList extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class _EmptyView extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String message;
-  final String buttonText;
-
-  const _EmptyView({
-    required this.icon,
-    required this.title,
-    required this.message,
-    required this.buttonText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white12, width: 2),
-              color: const Color(0xFF111111),
-            ),
-            child: Icon(icon, size: 48, color: Colors.grey),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            title,
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14),
-          ),
-          const SizedBox(height: 48),
-          OutlinedButton(
-            onPressed: () => context.go('/inventory'),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFFE30613)),
-              shape: const RoundedRectangleBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            ),
-            child: Text(
-              buttonText,
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(message, style: GoogleFonts.inter(color: Colors.grey)),
-          TextButton(
-            onPressed: onRetry,
-            child: const Text(
-              'RETRY',
-              style: TextStyle(color: Color(0xFFE30613)),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

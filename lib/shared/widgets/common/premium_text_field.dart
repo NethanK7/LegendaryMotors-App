@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PremiumTextField extends StatelessWidget {
@@ -7,6 +8,9 @@ class PremiumTextField extends StatelessWidget {
   final bool isPassword;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
+  final int maxLines;
+  final String? hintText;
+  final List<TextInputFormatter>? inputFormatters;
 
   const PremiumTextField({
     super.key,
@@ -15,6 +19,9 @@ class PremiumTextField extends StatelessWidget {
     this.isPassword = false,
     this.validator,
     this.keyboardType,
+    this.maxLines = 1,
+    this.hintText,
+    this.inputFormatters,
   });
 
   @override
@@ -36,12 +43,16 @@ class PremiumTextField extends StatelessWidget {
           controller: controller,
           obscureText: isPassword,
           keyboardType: keyboardType,
+          maxLines: maxLines,
+          inputFormatters: inputFormatters,
           style: GoogleFonts.inter(
             color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
           cursorColor: const Color(0xFFE30613),
           decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: GoogleFonts.inter(color: Colors.white24, fontSize: 14),
             filled: true,
             fillColor: Colors.black45,
             border: InputBorder.none,

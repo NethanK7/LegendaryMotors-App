@@ -5,6 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../services/admin_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../shared/widgets/status/admin_stat_card.dart';
+import '../../shared/widgets/common/quick_action_card.dart';
+import '../../shared/widgets/common/premium_badge.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -166,21 +169,20 @@ class _AdminScreenState extends State<AdminScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: _buildStatCard(
-                                'Total Inventory',
-                                stats['total_cars'].toString(),
-                                const Color(0xFFE30613),
-                                Icons.directions_car,
+                              child: AdminStatCard(
+                                label: 'Total Inventory',
+                                value: stats['total_cars'].toString(),
+                                accentColor: const Color(0xFFE30613),
+                                icon: Icons.directions_car,
                               ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: _buildStatCard(
-                                'Registered Users',
-                                stats['total_users'].toString(),
-                                Colors.white,
-                                Icons.people,
-                                progressColor: Colors.white,
+                              child: AdminStatCard(
+                                label: 'Registered Users',
+                                value: stats['total_users'].toString(),
+                                accentColor: Colors.white,
+                                icon: Icons.people,
                               ),
                             ),
                           ],
@@ -190,34 +192,33 @@ class _AdminScreenState extends State<AdminScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: _buildStatCard(
-                                'Allocations',
-                                stats['total_allocations'].toString(),
-                                Colors.blue,
-                                Icons.assignment_turned_in,
-                                progressColor: Colors.blue,
+                              child: AdminStatCard(
+                                label: 'Allocations',
+                                value: stats['total_allocations'].toString(),
+                                accentColor: Colors.blue,
+                                icon: Icons.assignment_turned_in,
                               ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: _buildStatCard(
-                                'Deposits Held',
-                                '\$${(double.tryParse(stats['deposits_collected']?.toString() ?? '0') ?? 0 / 1000).toStringAsFixed(1)}k',
-                                Colors.green,
-                                Icons.attach_money,
-                                progressColor: Colors.green,
+                              child: AdminStatCard(
+                                label: 'Deposits Held',
+                                value:
+                                    '\$${(double.tryParse(stats['deposits_collected']?.toString() ?? '0') ?? 0 / 1000).toStringAsFixed(1)}k',
+                                accentColor: Colors.green,
+                                icon: Icons.attach_money,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         // Full Width Revenue
-                        _buildStatCard(
-                          'Pipeline Value',
-                          '\$${(double.tryParse(stats['revenue']?.toString() ?? '0') ?? 0 / 1000000).toStringAsFixed(1)}M',
-                          Colors.purple,
-                          Icons.trending_up,
-                          progressColor: Colors.purple,
+                        AdminStatCard(
+                          label: 'Pipeline Value',
+                          value:
+                              '\$${(double.tryParse(stats['revenue']?.toString() ?? '0') ?? 0 / 1000000).toStringAsFixed(1)}M',
+                          accentColor: Colors.purple,
+                          icon: Icons.trending_up,
                           isFullWidth: true,
                         ),
 
@@ -287,8 +288,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 // 4. Quick Actions
                 _buildSectionHeader('QUICK ACTIONS'),
                 const SizedBox(height: 16),
-                _buildActionCard(
-                  context,
+                QuickActionCard(
                   title: 'NEW VEHICLE',
                   subtitle: 'Add a new masterpiece to the inventory.',
                   icon: Icons.add,
@@ -296,8 +296,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   accentColor: const Color(0xFFE30613),
                 ),
                 const SizedBox(height: 16),
-                _buildActionCard(
-                  context,
+                QuickActionCard(
                   title: 'MANAGE FLEET',
                   subtitle: 'Edit or remove existing vehicles.',
                   icon: Icons.edit_road,
@@ -327,79 +326,6 @@ class _AdminScreenState extends State<AdminScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard(
-    String label,
-    String value,
-    Color accent,
-    IconData icon, {
-    Color? progressColor,
-    bool isFullWidth = false,
-  }) {
-    return Container(
-      width: isFullWidth ? double.infinity : null,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F0F0F),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(icon, color: accent.withValues(alpha: 0.8), size: 20),
-              Icon(Icons.more_horiz, color: Colors.grey[800], size: 16),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            label.toUpperCase(),
-            style: GoogleFonts.inter(
-              color: Colors.grey[500],
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1.0,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 2,
-            width: double.infinity,
-            color: Colors.white.withValues(alpha: 0.1),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: 0.7,
-              child: Container(color: progressColor ?? accent),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _tableHeader(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.inter(
-        color: Colors.grey[600],
-        fontSize: 10,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.0,
-      ),
     );
   }
 
@@ -440,22 +366,10 @@ class _AdminScreenState extends State<AdminScreen> {
           ),
           Expanded(
             flex: 2,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.1),
-                border: Border.all(color: statusColor.withValues(alpha: 0.3)),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                status.toString().toUpperCase(),
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  color: statusColor,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            child: PremiumBadge(
+              text: status,
+              color: statusColor,
+              isOutline: true,
             ),
           ),
         ],
@@ -463,66 +377,14 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
-  Widget _buildActionCard(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-    required Color accentColor,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: accentColor == Colors.white ? Colors.transparent : accentColor,
-          border: accentColor == Colors.white
-              ? Border.all(color: Colors.white12)
-              : null,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      color: accentColor == Colors.white
-                          ? Colors.white
-                          : Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.inter(
-                      color: accentColor == Colors.white
-                          ? Colors.grey
-                          : Colors.white70,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white12),
-              ),
-              child: Icon(icon, color: Colors.white, size: 20),
-            ),
-          ],
-        ),
+  Widget _tableHeader(String text) {
+    return Text(
+      text,
+      style: GoogleFonts.inter(
+        color: Colors.grey[600],
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 1.0,
       ),
     );
   }

@@ -5,6 +5,7 @@ import '../../providers/inventory_provider.dart';
 import '../../shared/models/car.dart';
 import '../../shared/widgets/car/premium_car_card.dart';
 import '../../shared/widgets/layout/sliver_page_header.dart';
+import '../../shared/widgets/status/status_view.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? category;
@@ -258,25 +259,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   Widget _buildErrorState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.red),
-          const SizedBox(height: 16),
-          Text('Unable to load fleet', style: GoogleFonts.inter()),
-          TextButton(
-            onPressed: () => Provider.of<InventoryProvider>(
-              context,
-              listen: false,
-            ).fetchInventory(),
-            child: const Text(
-              'RETRY',
-              style: TextStyle(color: Color(0xFFE30613)),
-            ),
-          ),
-        ],
-      ),
+    return StatusView(
+      icon: Icons.error_outline,
+      title: 'UNABLE TO LOAD FLEET',
+      message: 'There was a problem connecting to our showroom.',
+      buttonText: 'RETRY',
+      onAction: () => Provider.of<InventoryProvider>(
+        context,
+        listen: false,
+      ).fetchInventory(),
     );
   }
 
@@ -379,26 +370,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
   }
 
   Widget _buildEmptyState(Color onSurface, {required bool isSliver}) {
-    final child = Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.search_off,
-            size: 64,
-            color: onSurface.withValues(alpha: 0.2),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            "No vehicles match your search",
-            style: GoogleFonts.inter(color: onSurface.withValues(alpha: 0.5)),
-          ),
-        ],
-      ),
+    return StatusView(
+      icon: Icons.search_off,
+      title: 'NO VEHICLES FOUND',
+      message: 'No vehicles match your current search criteria.',
+      isSliver: isSliver,
     );
-
-    if (isSliver) return SliverFillRemaining(child: child);
-    return child;
   }
 
   Widget _buildGridSliver(List<Car> cars, bool isDark) {
