@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/auth_provider.dart';
-import '../../shared/widgets/premium_button.dart';
-import '../../shared/widgets/premium_text_field.dart';
-import '../../shared/widgets/glass_container.dart';
+import '../../shared/widgets/common/premium_button.dart';
+import '../../shared/widgets/common/premium_text_field.dart';
+import '../../shared/widgets/common/glass_container.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../providers/inventory_provider.dart';
 import '../../shared/models/car.dart';
-import '../../shared/widgets/premium_car_card.dart';
-import '../../shared/widgets/sliver_page_header.dart';
+import '../../shared/widgets/car/premium_car_card.dart';
+import '../../shared/widgets/layout/sliver_page_header.dart';
 
 class InventoryScreen extends StatefulWidget {
   final String? category;

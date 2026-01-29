@@ -4,9 +4,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as latlong;
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../shared/widgets/sliver_page_header.dart';
+import '../../shared/widgets/layout/sliver_page_header.dart';
 import '../../shared/models/location.dart';
-import '../../shared/widgets/location_list_item.dart';
+import '../../shared/widgets/common/location_list_item.dart';
 
 class LocationsScreen extends StatefulWidget {
   const LocationsScreen({super.key});

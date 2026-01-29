@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/favorites_provider.dart';
 import '../../providers/orders_provider.dart';
 import '../../shared/models/car.dart';
-import '../../shared/widgets/premium_car_card.dart';
+import '../../shared/widgets/car/premium_car_card.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});

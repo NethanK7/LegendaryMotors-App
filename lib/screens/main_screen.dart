@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../shared/widgets/offline_banner.dart';
+import '../shared/widgets/status/offline_banner.dart';
 
 class MainScreen extends StatefulWidget {
   final Widget child;

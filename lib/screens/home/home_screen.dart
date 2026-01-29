@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/inventory_provider.dart';
 import '../../shared/models/car.dart';
-import '../../shared/widgets/hero_banner.dart';
-import '../../shared/widgets/section_header.dart';
-import '../../shared/widgets/car_card.dart';
-import '../../shared/widgets/weather_display.dart';
+import '../../shared/widgets/common/hero_banner.dart';
+import '../../shared/widgets/common/section_header.dart';
+import '../../shared/widgets/car/premium_car_card.dart';
+import '../../shared/widgets/status/weather_display.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -201,18 +201,17 @@ class HomeScreen extends StatelessWidget {
           },
         ),
         SizedBox(
-          height: 220,
+          height: 200,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             scrollDirection: Axis.horizontal,
             itemCount: cars.length,
-            separatorBuilder: (ctx, i) => const SizedBox(width: 12),
+            separatorBuilder: (ctx, i) => const SizedBox(width: 16),
             itemBuilder: (ctx, i) {
               final car = cars[i];
-              return CarCard(
-                car: car,
-                onTap: () =>
-                    context.push('/inventory/car/${car.id}', extra: car),
+              return SizedBox(
+                width: 300,
+                child: PremiumCarCard(car: car, index: i),
               );
             },
           ),

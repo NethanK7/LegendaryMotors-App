@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import '../models/car.dart';
-import '../controllers/sensors_controller.dart';
+import '../../models/car.dart';
+import '../../controllers/sensors_controller.dart';
 
 class HeroBanner extends StatelessWidget {
   final Car? featured;

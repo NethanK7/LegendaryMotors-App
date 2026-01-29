@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import './/live_clock.dart';
-import '../../providers/weather_provider.dart';
+import '../../../providers/weather_provider.dart';
 
 class WeatherDisplay extends StatelessWidget {
   const WeatherDisplay({super.key});

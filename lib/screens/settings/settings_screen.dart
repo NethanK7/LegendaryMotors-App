@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../providers/auth_provider.dart';
-import '../../shared/widgets/sliver_page_header.dart';
-import '../../shared/widgets/premium_list_tile.dart';
-import '../../shared/widgets/section_label.dart';
+import '../../shared/widgets/layout/sliver_page_header.dart';
+import '../../shared/widgets/common/premium_list_tile.dart';
+import '../../shared/widgets/common/section_label.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

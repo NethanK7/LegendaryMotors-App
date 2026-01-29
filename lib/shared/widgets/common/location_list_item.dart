@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../models/location.dart';
+import '../../models/location.dart';
 
 class LocationListItem extends StatelessWidget {
   final Location location;
