@@ -11,9 +11,20 @@ class CarService {
   Future<List<Car>> getCars() async {
     try {
       final response = await _client.dio.get(ApiConstants.carsEndpoint);
-      // Assuming response.data is a List
-      return (response.data as List).map((json) => Car.fromJson(json)).toList();
+      final cars = (response.data as List)
+          .map((json) => Car.fromJson(json))
+          .toList();
+
+      // Update Cache
+      await DatabaseService().cacheCars(cars);
+
+      return cars;
     } catch (e) {
+      // Fallback to SQLite Cache
+      final cachedCars = await DatabaseService().getCachedCars();
+      if (cachedCars.isNotEmpty) {
+        return cachedCars;
+      }
       throw Exception('Failed to fetch cars: ${e.toString()}');
     }
   }

@@ -1,40 +1,10 @@
 import 'package:flutter/material.dart';
-import '../api/api_client.dart';
-import '../api/api_constants.dart';
 import '../shared/models/car.dart';
-import '../services/database_service.dart';
-
-// Service
-class InventoryService {
-  final ApiClient _client;
-
-  InventoryService(this._client);
-
-  Future<List<Car>> fetchCars() async {
-    try {
-      final response = await _client.dio.get(ApiConstants.carsEndpoint);
-      final List<dynamic> data = response.data;
-
-      final cars = data.map((json) => Car.fromJson(json)).toList();
-
-      // Update Cache
-      await DatabaseService().cacheCars(cars);
-
-      return cars;
-    } catch (e) {
-      // Fallback to SQLite Cache
-      final cachedCars = await DatabaseService().getCachedCars();
-      if (cachedCars.isNotEmpty) {
-        return cachedCars;
-      }
-      rethrow;
-    }
-  }
-}
+import '../services/car_service.dart';
 
 // ChangeNotifier for Inventory
 class InventoryProvider extends ChangeNotifier {
-  final InventoryService _service;
+  final CarService _service;
   List<Car> _cars = [];
   bool _isLoading = false;
   String? _error;
@@ -52,7 +22,7 @@ class InventoryProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      _cars = await _service.fetchCars();
+      _cars = await _service.getCars();
       _isLoading = false;
     } catch (e) {
       _error = e.toString();

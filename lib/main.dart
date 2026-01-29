@@ -43,9 +43,7 @@ void main() async {
         Provider.value(value: checkoutService),
 
         ChangeNotifierProvider(create: (_) => AuthProvider(authService)),
-        ChangeNotifierProvider(
-          create: (_) => InventoryProvider(InventoryService(apiClient)),
-        ),
+        ChangeNotifierProvider(create: (_) => InventoryProvider(carService)),
         ChangeNotifierProvider(create: (_) => FavoritesProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => OrdersProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
