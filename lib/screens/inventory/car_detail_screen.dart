@@ -8,6 +8,7 @@ import '../../providers/favorites_provider.dart';
 import '../../providers/inventory_provider.dart';
 import '../../shared/widgets/car/car_spec_item.dart';
 import '../../shared/widgets/common/premium_button.dart';
+import '../../shared/widgets/common/tilt_parallax.dart';
 
 class CarDetailScreen extends StatefulWidget {
   final int carId;
@@ -455,31 +456,34 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
         onPressed: () => context.pop(),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: car.imageUrl,
-              fit: BoxFit.cover,
-              errorWidget: (context, url, error) =>
-                  Container(color: Colors.grey[900]),
-            ),
-            // Gradient Overlay makes the text on top more readable
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    isDark
-                        ? Colors.black.withValues(alpha: 0.7)
-                        : Colors.white.withValues(alpha: 0.7),
-                  ],
+        background: TiltParallax(
+          intensity: 15,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              CachedNetworkImage(
+                imageUrl: car.imageUrl,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) =>
+                    Container(color: Colors.grey[900]),
+              ),
+              // Gradient Overlay makes the text on top more readable
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      isDark
+                          ? Colors.black.withValues(alpha: 0.7)
+                          : Colors.white.withValues(alpha: 0.7),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

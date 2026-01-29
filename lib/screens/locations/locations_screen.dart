@@ -146,23 +146,41 @@ class _LocationsScreenState extends State<LocationsScreen> {
                 // List Panel (Right)
                 Expanded(
                   flex: 1,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(24),
-                    itemCount: _locations.length,
-                    itemBuilder: (context, index) {
-                      final loc = _locations[index];
-                      final dist = _calculateDistance(loc.lat, loc.lng);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child:
-                            LocationListItem(
-                                  location: loc,
-                                  distanceInKm: dist,
-                                  onTap: () => _onLocationTap(loc),
-                                )
-                                .animate()
-                                .fadeIn(delay: (100 * index).ms)
-                                .moveX(begin: 20, end: 0),
+                  child: Builder(
+                    builder: (context) {
+                      final sortedLocations = List<Location>.from(_locations);
+                      if (_currentPosition != null) {
+                        sortedLocations.sort(
+                          (a, b) => _calculateDistance(
+                            a.lat,
+                            a.lng,
+                          ).compareTo(_calculateDistance(b.lat, b.lng)),
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(24),
+                        itemCount: sortedLocations.length,
+                        itemBuilder: (context, index) {
+                          final loc = sortedLocations[index];
+                          final dist = _calculateDistance(loc.lat, loc.lng);
+                          final isNearest =
+                              _currentPosition != null && index == 0;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child:
+                                LocationListItem(
+                                      location: loc,
+                                      distanceInKm: dist,
+                                      onTap: () => _onLocationTap(loc),
+                                      isNearest: isNearest,
+                                    )
+                                    .animate()
+                                    .fadeIn(delay: (100 * index).ms)
+                                    .moveX(begin: 20, end: 0),
+                          );
+                        },
                       );
                     },
                   ),
@@ -260,19 +278,31 @@ class _LocationsScreenState extends State<LocationsScreen> {
   }
 
   Widget _buildLocationsListSliver(ThemeData theme) {
+    final sortedLocations = List<Location>.from(_locations);
+    if (_currentPosition != null) {
+      sortedLocations.sort(
+        (a, b) => _calculateDistance(
+          a.lat,
+          a.lng,
+        ).compareTo(_calculateDistance(b.lat, b.lng)),
+      );
+    }
+
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          final loc = _locations[index];
+          final loc = sortedLocations[index];
           final dist = _calculateDistance(loc.lat, loc.lng);
+          final isNearest = _currentPosition != null && index == 0;
 
           return LocationListItem(
             location: loc,
             distanceInKm: dist,
             onTap: () => _onLocationTap(loc),
+            isNearest: isNearest,
           ).animate().fadeIn(delay: (200 * index).ms).moveX(begin: 20, end: 0);
-        }, childCount: _locations.length),
+        }, childCount: sortedLocations.length),
       ),
     );
   }

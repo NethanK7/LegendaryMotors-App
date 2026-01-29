@@ -8,11 +8,14 @@ class LocationListItem extends StatelessWidget {
   final double? distanceInKm;
   final VoidCallback? onTap;
 
+  final bool isNearest;
+
   const LocationListItem({
     super.key,
     required this.location,
     this.distanceInKm,
     this.onTap,
+    this.isNearest = false,
   });
 
   @override
@@ -63,16 +66,41 @@ class LocationListItem extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (distanceInKm != null)
-                    Text(
-                      '${distanceInKm!.toStringAsFixed(0)} KM AWAY',
-                      style: GoogleFonts.inter(
-                        color: const Color(0xFFE30613),
-                        fontWeight: FontWeight.w900,
-                        fontSize: 10,
-                        letterSpacing: 1,
-                      ),
-                    ),
+                  Row(
+                    children: [
+                      if (distanceInKm != null)
+                        Text(
+                          '${distanceInKm!.toStringAsFixed(0)} KM AWAY',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFE30613),
+                            fontWeight: FontWeight.w900,
+                            fontSize: 10,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      if (isNearest) ...[
+                        if (distanceInKm != null) const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'NEAREST',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),

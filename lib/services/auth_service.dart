@@ -89,6 +89,28 @@ class AuthService {
     await prefs.remove('auth_token');
   }
 
+  // --- Biometric Preferences ---
+
+  Future<bool> isBiometricsEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('biometrics_enabled') ?? false;
+  }
+
+  Future<void> setBiometricsEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('biometrics_enabled', enabled);
+  }
+
+  Future<String?> getSavedEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('saved_email');
+  }
+
+  Future<void> saveEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_email', email);
+  }
+
   // Restore user session if token exists
   Future<User?> restoreUser() async {
     final prefs = await SharedPreferences.getInstance();

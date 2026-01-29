@@ -45,6 +45,22 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleBiometricLogin() async {
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.loginWithBiometrics();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
     try {
@@ -147,6 +163,44 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: _handleGoogleLogin,
               isLoading: _isLoading,
               isPrimary: false,
+            ),
+            const SizedBox(height: 16),
+            Consumer<AuthProvider>(
+              builder: (context, auth, _) {
+                if (auth.state.isBiometricSupported) {
+                  return Column(
+                    children: [
+                      if (auth.state.isBiometricEnabled)
+                        PremiumButton(
+                          text: 'BIOMETRIC LOGIN',
+                          onPressed: _handleBiometricLogin,
+                          isLoading: _isLoading,
+                          isPrimary: false,
+                          icon: Icons.fingerprint,
+                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'ENABLE BIOMETRICS',
+                            style: GoogleFonts.inter(
+                              color: Colors.white60,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Switch(
+                            value: auth.state.isBiometricEnabled,
+                            onChanged: (val) => auth.toggleBiometrics(val),
+                            activeThumbColor: const Color(0xFFE30613),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
           ],
         ),
