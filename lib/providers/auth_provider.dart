@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../shared/models/user.dart';
 import '../services/auth_service.dart';
 import '../services/biometric_service.dart';
+import '../services/database_service.dart';
 
 class AuthState {
   final User? user;
@@ -10,6 +11,7 @@ class AuthState {
   final bool isBiometricSupported;
   final bool isBiometricEnabled;
   final String? savedEmail;
+  final String? localProfileImagePath;
 
   AuthState({
     this.user,
@@ -18,6 +20,7 @@ class AuthState {
     this.isBiometricSupported = false,
     this.isBiometricEnabled = false,
     this.savedEmail,
+    this.localProfileImagePath,
   });
 
   bool get isAuthenticated => user != null;
@@ -29,6 +32,7 @@ class AuthState {
     bool? isBiometricSupported,
     bool? isBiometricEnabled,
     String? savedEmail,
+    String? localProfileImagePath,
   }) {
     return AuthState(
       user: user ?? this.user,
@@ -37,6 +41,8 @@ class AuthState {
       isBiometricSupported: isBiometricSupported ?? this.isBiometricSupported,
       isBiometricEnabled: isBiometricEnabled ?? this.isBiometricEnabled,
       savedEmail: savedEmail ?? this.savedEmail,
+      localProfileImagePath:
+          localProfileImagePath ?? this.localProfileImagePath,
     );
   }
 }
@@ -48,6 +54,17 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider(this._authService) {
     checkAuthStatus();
     _initBiometrics();
+    _loadLocalProfile();
+  }
+
+  Future<void> _loadLocalProfile() async {
+    final path = await DatabaseService().getSetting('profile_image_path');
+    _updateState(_state.copyWith(localProfileImagePath: path));
+  }
+
+  Future<void> updateLocalProfileImage(String path) async {
+    await DatabaseService().saveSetting('profile_image_path', path);
+    _updateState(_state.copyWith(localProfileImagePath: path));
   }
 
   final BiometricService _biometricService = BiometricService();

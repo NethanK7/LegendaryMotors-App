@@ -24,7 +24,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -61,12 +61,28 @@ class DatabaseService {
         allocated_at TEXT
       )
     ''');
+
+    // 3. Settings Table (Local App Settings)
+    await db.execute('''
+      CREATE TABLE settings(
+        key TEXT PRIMARY KEY,
+        value TEXT
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE cars ADD COLUMN year INTEGER');
       await db.execute('ALTER TABLE allocations ADD COLUMN year INTEGER');
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE settings(
+          key TEXT PRIMARY KEY,
+          value TEXT
+        )
+      ''');
     }
   }
 
@@ -145,5 +161,29 @@ class DatabaseService {
     return List.generate(maps.length, (i) {
       return Car.fromJsonFromDb(maps[i]);
     });
+  }
+
+  // --- Start of Settings Operations ---
+
+  Future<void> saveSetting(String key, String value) async {
+    final db = await database;
+    await db.insert('settings', {
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<String?> getSetting(String key) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'settings',
+      where: 'key = ?',
+      whereArgs: [key],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.first['value'] as String?;
+    }
+    return null;
   }
 }

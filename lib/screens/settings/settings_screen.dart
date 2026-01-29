@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'dart:io';
 
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/layout/sliver_page_header.dart';
@@ -9,8 +13,45 @@ import '../../shared/widgets/common/premium_list_tile.dart';
 import '../../shared/widgets/common/section_label.dart';
 import '../../shared/widgets/common/premium_button.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+      );
+
+      if (photo != null) {
+        final appDir = await getApplicationDocumentsDirectory();
+        final fileName = path.basename(photo.path);
+        final savedImage = await File(
+          photo.path,
+        ).copy('${appDir.path}/$fileName');
+
+        if (mounted) {
+          Provider.of<AuthProvider>(
+            context,
+            listen: false,
+          ).updateLocalProfileImage(savedImage.path);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,16 +85,57 @@ class SettingsScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: const Color(0xFFE30613),
-                          child: Text(
-                            user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 36,
-                              color: Colors.white,
-                            ),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: const Color(0xFFE30613),
+                                backgroundImage:
+                                    authProvider.state.localProfileImagePath !=
+                                        null
+                                    ? FileImage(
+                                        File(
+                                          authProvider
+                                              .state
+                                              .localProfileImagePath!,
+                                        ),
+                                      )
+                                    : null,
+                                child:
+                                    authProvider.state.localProfileImagePath ==
+                                        null
+                                    ? Text(
+                                        user?.name
+                                                .substring(0, 1)
+                                                .toUpperCase() ??
+                                            'U',
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 36,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFE30613),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -134,16 +216,61 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: const Color(0xFFE30613),
-                            child: Text(
-                              user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24,
-                                color: Colors.white,
-                              ),
+                          GestureDetector(
+                            onTap: _pickImage,
+                            child: Stack(
+                              children: [
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundColor: const Color(0xFFE30613),
+                                  backgroundImage:
+                                      authProvider
+                                              .state
+                                              .localProfileImagePath !=
+                                          null
+                                      ? FileImage(
+                                          File(
+                                            authProvider
+                                                .state
+                                                .localProfileImagePath!,
+                                          ),
+                                        )
+                                      : null,
+                                  child:
+                                      authProvider
+                                              .state
+                                              .localProfileImagePath ==
+                                          null
+                                      ? Text(
+                                          user?.name
+                                                  .substring(0, 1)
+                                                  .toUpperCase() ??
+                                              'U',
+                                          style: GoogleFonts.inter(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 24,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFE30613),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(width: 16),

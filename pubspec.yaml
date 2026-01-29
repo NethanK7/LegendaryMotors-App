@@ -61,10 +61,12 @@ dependencies:
   sqflite: ^2.4.2
   path: ^1.9.1
   path_provider: ^2.1.5
+  vector_math: ^2.1.4
   google_sign_in: ^6.2.1
   google_maps_flutter: ^2.14.0
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
