@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 class TiltParallax extends StatefulWidget {
   final Widget child;
@@ -44,7 +44,9 @@ class _TiltParallaxState extends State<TiltParallax> {
       duration: const Duration(milliseconds: 100),
       curve: Curves.easeOut,
       transform: Matrix4.identity()
-        ..translateByDouble(_x * widget.intensity, _y * widget.intensity, 0.0)
+        ..translateByVector3(
+          Vector3(_x * widget.intensity, _y * widget.intensity, 0.0),
+        )
         ..rotateX(_y * 0.05)
         ..rotateY(_x * 0.05),
       child: widget.child,
