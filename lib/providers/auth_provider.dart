@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import '../shared/models/user.dart';
 import '../services/auth_service.dart';
 
@@ -21,20 +21,30 @@ class AuthState {
   }
 }
 
-// StateNotifier for Auth
-class AuthController extends StateNotifier<AuthState> {
+// ChangeNotifier for Auth
+class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
+  AuthState _state = AuthState();
 
-  AuthController(this._authService) : super(AuthState());
+  AuthProvider(this._authService) {
+    checkAuthStatus();
+  }
+
+  AuthState get state => _state;
+
+  void _updateState(AuthState newState) {
+    _state = newState;
+    notifyListeners();
+  }
 
   Future<void> login(String email, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
+    _updateState(_state.copyWith(isLoading: true, error: null));
     try {
       final user = await _authService.login(email, password);
-      state = state.copyWith(user: user, isLoading: false);
+      _updateState(_state.copyWith(user: user, isLoading: false));
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      rethrow; // Rethrow to let the UI handle the error (show snackbar)
+      _updateState(_state.copyWith(isLoading: false, error: e.toString()));
+      rethrow;
     }
   }
 
@@ -44,47 +54,39 @@ class AuthController extends StateNotifier<AuthState> {
     String password,
     String phone,
   ) async {
-    state = state.copyWith(isLoading: true, error: null);
+    _updateState(_state.copyWith(isLoading: true, error: null));
     try {
       final user = await _authService.register(name, email, password, phone);
-      state = state.copyWith(user: user, isLoading: false);
+      _updateState(_state.copyWith(user: user, isLoading: false));
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      _updateState(_state.copyWith(isLoading: false, error: e.toString()));
       rethrow;
     }
   }
 
   Future<void> checkAuthStatus() async {
-    state = state.copyWith(isLoading: true);
+    _updateState(_state.copyWith(isLoading: true));
     try {
       final user = await _authService.restoreUser();
-      state = state.copyWith(user: user, isLoading: false);
+      _updateState(_state.copyWith(user: user, isLoading: false));
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: null);
+      _updateState(_state.copyWith(isLoading: false, error: null));
     }
   }
 
   Future<void> loginWithGoogle() async {
-    state = state.copyWith(isLoading: true, error: null);
+    _updateState(_state.copyWith(isLoading: true, error: null));
     try {
       final user = await _authService.loginWithGoogle();
-      state = state.copyWith(user: user, isLoading: false);
+      _updateState(_state.copyWith(user: user, isLoading: false));
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      _updateState(_state.copyWith(isLoading: false, error: e.toString()));
       rethrow;
     }
   }
 
   Future<void> logout() async {
     await _authService.logout();
-    state = AuthState(); // Reset state
+    _updateState(AuthState()); // Reset state
   }
-} // End of Class
-
-// Provider
-final authProvider = StateNotifierProvider<AuthController, AuthState>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  final controller = AuthController(authService);
-  controller.checkAuthStatus(); // Fire and forget check
-  return controller;
-});
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -8,14 +8,14 @@ import '../../shared/widgets/premium_button.dart';
 import '../../shared/widgets/premium_text_field.dart';
 import '../../shared/widgets/glass_container.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -39,14 +39,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await ref
-          .read(authProvider.notifier)
-          .register(
-            _nameController.text.trim(),
-            _emailController.text.trim(),
-            _passwordController.text,
-            _phoneController.text.trim(),
-          );
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.register(
+        _nameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text,
+        _phoneController.text.trim(),
+      );
 
       if (mounted) {
         // Successful registration usually logs in automatically via the provider update

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/favorites_provider.dart';
@@ -7,11 +7,11 @@ import '../../providers/orders_provider.dart';
 import '../../shared/models/car.dart';
 import '../../shared/widgets/premium_car_card.dart';
 
-class FavoritesScreen extends ConsumerWidget {
+class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -47,71 +47,93 @@ class FavoritesScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.refresh, color: Colors.white),
               onPressed: () {
-                ref.invalidate(favoritesProvider);
-                ref.invalidate(ordersProvider);
+                Provider.of<FavoritesProvider>(
+                  context,
+                  listen: false,
+                ).fetchFavorites();
+                Provider.of<OrdersProvider>(
+                  context,
+                  listen: false,
+                ).fetchOrders();
               },
             ),
           ],
         ),
-        body: TabBarView(children: [_PurchasedCarsTab(), _FavoriteCarsTab()]),
+        body: const TabBarView(
+          children: [_PurchasedCarsTab(), _FavoriteCarsTab()],
+        ),
       ),
     );
   }
 }
 
-class _PurchasedCarsTab extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ordersState = ref.watch(ordersProvider);
+class _PurchasedCarsTab extends StatelessWidget {
+  const _PurchasedCarsTab();
 
-    return ordersState.when(
-      loading: () => const Center(
+  @override
+  Widget build(BuildContext context) {
+    final ordersState = context.watch<OrdersProvider>();
+
+    if (ordersState.isLoading && ordersState.orders.isEmpty) {
+      return const Center(
         child: CircularProgressIndicator(color: Color(0xFFE30613)),
-      ),
-      error: (err, stack) => _ErrorView(
+      );
+    }
+
+    if (ordersState.error != null && ordersState.orders.isEmpty) {
+      return _ErrorView(
         message: 'Unable to load collection',
-        onRetry: () => ref.refresh(ordersProvider),
-      ),
-      data: (cars) {
-        if (cars.isEmpty) {
-          return const _EmptyView(
-            icon: Icons.garage_outlined,
-            title: 'COLLECTION EMPTY',
-            message: 'You haven\'t purchased any vehicles yet.',
-            buttonText: 'VISIT SHOWROOM',
-          );
-        }
-        return _CarList(cars: cars, isPurchased: true);
-      },
-    );
+        onRetry: () =>
+            Provider.of<OrdersProvider>(context, listen: false).fetchOrders(),
+      );
+    }
+
+    final cars = ordersState.orders;
+    if (cars.isEmpty) {
+      return const _EmptyView(
+        icon: Icons.garage_outlined,
+        title: 'COLLECTION EMPTY',
+        message: 'You haven\'t purchased any vehicles yet.',
+        buttonText: 'VISIT SHOWROOM',
+      );
+    }
+    return _CarList(cars: cars, isPurchased: true);
   }
 }
 
-class _FavoriteCarsTab extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final favoritesState = ref.watch(favoritesProvider);
+class _FavoriteCarsTab extends StatelessWidget {
+  const _FavoriteCarsTab();
 
-    return favoritesState.when(
-      loading: () => const Center(
+  @override
+  Widget build(BuildContext context) {
+    final favoritesState = context.watch<FavoritesProvider>();
+
+    if (favoritesState.isLoading && favoritesState.favorites.isEmpty) {
+      return const Center(
         child: CircularProgressIndicator(color: Color(0xFFE30613)),
-      ),
-      error: (err, stack) => _ErrorView(
+      );
+    }
+
+    if (favoritesState.error != null && favoritesState.favorites.isEmpty) {
+      return _ErrorView(
         message: 'Unable to load wishlist',
-        onRetry: () => ref.refresh(favoritesProvider),
-      ),
-      data: (cars) {
-        if (cars.isEmpty) {
-          return const _EmptyView(
-            icon: Icons.favorite_border,
-            title: 'WISHLIST EMPTY',
-            message: 'Save your dream configurations here.',
-            buttonText: 'BROWSE CARS',
-          );
-        }
-        return _CarList(cars: cars, isPurchased: false);
-      },
-    );
+        onRetry: () => Provider.of<FavoritesProvider>(
+          context,
+          listen: false,
+        ).fetchFavorites(),
+      );
+    }
+
+    final cars = favoritesState.favorites;
+    if (cars.isEmpty) {
+      return const _EmptyView(
+        icon: Icons.favorite_border,
+        title: 'WISHLIST EMPTY',
+        message: 'Save your dream configurations here.',
+        buttonText: 'BROWSE CARS',
+      );
+    }
+    return _CarList(cars: cars, isPurchased: false);
   }
 }
 

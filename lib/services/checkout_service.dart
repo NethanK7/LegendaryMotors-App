@@ -1,11 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_client.dart';
 import '../api/api_constants.dart';
-import 'auth_service.dart';
-
-final checkoutServiceProvider = Provider<CheckoutService>((ref) {
-  return CheckoutService(ref.read(apiClientProvider));
-});
 
 class CheckoutService {
   final ApiClient _client;

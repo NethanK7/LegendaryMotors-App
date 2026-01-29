@@ -1,34 +1,36 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import '../api/api_client.dart';
 import '../api/api_constants.dart';
 import '../shared/models/car.dart';
-import '../services/auth_service.dart';
 
-final favoritesProvider =
-    StateNotifierProvider.autoDispose<FavoritesNotifier, AsyncValue<List<Car>>>(
-      (ref) {
-        final apiClient = ref.watch(apiClientProvider);
-        return FavoritesNotifier(apiClient);
-      },
-    );
-
-class FavoritesNotifier extends StateNotifier<AsyncValue<List<Car>>> {
+class FavoritesProvider extends ChangeNotifier {
   final ApiClient _client;
+  List<Car> _favorites = [];
+  bool _isLoading = false;
+  String? _error;
 
-  FavoritesNotifier(this._client) : super(const AsyncValue.loading()) {
+  FavoritesProvider(this._client) {
     fetchFavorites();
   }
 
+  List<Car> get favorites => _favorites;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
   Future<void> fetchFavorites() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
     try {
       final response = await _client.dio.get(ApiConstants.favoritesEndpoint);
-      // Assuming response.data is List of Cars
       final List<dynamic> data = response.data;
-      final cars = data.map((e) => Car.fromJson(e)).toList();
-      state = AsyncValue.data(cars);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      _favorites = data.map((e) => Car.fromJson(e)).toList();
+      _isLoading = false;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
     }
+    notifyListeners();
   }
 
   Future<void> toggleFavorite(int carId) async {

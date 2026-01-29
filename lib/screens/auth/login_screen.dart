@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -8,14 +8,14 @@ import '../../shared/widgets/premium_button.dart';
 import '../../shared/widgets/premium_text_field.dart';
 import '../../shared/widgets/glass_container.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -25,9 +25,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      await ref
-          .read(authProvider.notifier)
-          .login(_emailController.text.trim(), _passwordController.text);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
       // Navigation is handled by router redirect based on auth state
     } catch (e) {
       if (mounted) {
@@ -46,7 +48,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
     try {
-      await ref.read(authProvider.notifier).loginWithGoogle();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.loginWithGoogle();
       // Navigation is handled by router redirect based on auth state
     } catch (e) {
       if (mounted) {
@@ -81,7 +84,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               // Dynamic Background
               Image.network(
-                'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop', // Brabus/Premium Car
+                'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop',
                 fit: BoxFit.cover,
                 color: Colors.black.withValues(alpha: 0.7),
                 colorBlendMode: BlendMode.darken,

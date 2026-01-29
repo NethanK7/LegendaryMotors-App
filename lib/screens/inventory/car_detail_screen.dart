@@ -1,23 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/models/car.dart';
 import '../../providers/favorites_provider.dart';
 import '../../providers/inventory_provider.dart';
 
-class CarDetailScreen extends ConsumerStatefulWidget {
+class CarDetailScreen extends StatefulWidget {
   final int carId;
   final Car? car;
 
   const CarDetailScreen({super.key, required this.carId, this.car});
 
   @override
-  ConsumerState<CarDetailScreen> createState() => _CarDetailScreenState();
+  State<CarDetailScreen> createState() => _CarDetailScreenState();
 }
 
-class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
+class _CarDetailScreenState extends State<CarDetailScreen> {
   // Mock Configuration State
   int _selectedColor = 0;
   int _selectedWheels = 0;
@@ -53,7 +53,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
             return Container(
               height: MediaQuery.of(context).size.height * 0.7,
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Color(0xFF111111),
                 border: Border(top: BorderSide(color: Colors.white12)),
               ),
@@ -73,7 +73,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close, color: Colors.white),
+                        icon: const Icon(Icons.close, color: Colors.white),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -311,25 +311,23 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
     Car? displayCar = widget.car;
 
     if (displayCar == null) {
-      final inventoryState = ref.watch(inventoryProvider);
-      displayCar = inventoryState.maybeWhen(
-        data: (cars) => cars.firstWhere((c) => c.id == widget.carId,
-            orElse: () => cars.first),
-        orElse: () => null,
-      );
+      final inventoryState = context.watch<InventoryProvider>();
+      if (inventoryState.cars.isNotEmpty) {
+        displayCar = inventoryState.cars.firstWhere(
+          (c) => c.id == widget.carId,
+          orElse: () => inventoryState.cars.first,
+        );
+      }
     }
 
     if (displayCar == null) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final car = displayCar;
-    final favoritesState = ref.watch(favoritesProvider);
-    final boolisFavorite = favoritesState.maybeWhen(
-      data: (favs) => favs.any((f) => f.id == car.id),
-      orElse: () => false,
+    final favoritesProvider = context.watch<FavoritesProvider>();
+    final boolisFavorite = favoritesProvider.favorites.any(
+      (f) => f.id == car.id,
     );
 
     return Scaffold(
@@ -337,16 +335,34 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
       body: OrientationBuilder(
         builder: (context, orientation) {
           if (orientation == Orientation.landscape) {
-            return _buildLandscapeLayout(car, boolisFavorite, isDark, onSurface, theme);
+            return _buildLandscapeLayout(
+              car,
+              boolisFavorite,
+              isDark,
+              onSurface,
+              theme,
+            );
           } else {
-            return _buildPortraitLayout(car, boolisFavorite, isDark, onSurface, theme);
+            return _buildPortraitLayout(
+              car,
+              boolisFavorite,
+              isDark,
+              onSurface,
+              theme,
+            );
           }
         },
       ),
     );
   }
 
-  Widget _buildPortraitLayout(Car car, bool boolisFavorite, bool isDark, Color onSurface, ThemeData theme) {
+  Widget _buildPortraitLayout(
+    Car car,
+    bool boolisFavorite,
+    bool isDark,
+    Color onSurface,
+    ThemeData theme,
+  ) {
     return CustomScrollView(
       slivers: [
         _buildHeroImage(car, isDark, onSurface),
@@ -372,7 +388,13 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
     );
   }
 
-  Widget _buildLandscapeLayout(Car car, bool boolisFavorite, bool isDark, Color onSurface, ThemeData theme) {
+  Widget _buildLandscapeLayout(
+    Car car,
+    bool boolisFavorite,
+    bool isDark,
+    Color onSurface,
+    ThemeData theme,
+  ) {
     return Row(
       children: [
         // Left: Image
@@ -390,7 +412,11 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                 top: 40,
                 left: 16,
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                   onPressed: () => context.pop(),
                 ),
               ),
@@ -459,23 +485,11 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
   Widget _buildSpecs(Car car, Color onSurface) {
     return Row(
       children: [
-        _buildSpecItem(
-          '${car.specs['hp'] ?? 'N/A'}',
-          'HP',
-          onSurface,
-        ),
+        _buildSpecItem('${car.specs['hp'] ?? 'N/A'}', 'HP', onSurface),
         const SizedBox(width: 32),
-        _buildSpecItem(
-          '${car.specs['0_60'] ?? 'N/A'}s',
-          '0-60',
-          onSurface,
-        ),
+        _buildSpecItem('${car.specs['0_60'] ?? 'N/A'}s', '0-60', onSurface),
         const SizedBox(width: 32),
-        _buildSpecItem(
-          '${car.specs['top_speed'] ?? 'N/A'}',
-          'MPH',
-          onSurface,
-        ),
+        _buildSpecItem('${car.specs['top_speed'] ?? 'N/A'}', 'MPH', onSurface),
       ],
     );
   }
@@ -505,7 +519,12 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
     );
   }
 
-  Widget _buildActions(Car car, bool boolisFavorite, Color onSurface, ThemeData theme) {
+  Widget _buildActions(
+    Car car,
+    bool boolisFavorite,
+    Color onSurface,
+    ThemeData theme,
+  ) {
     return Column(
       children: [
         SizedBox(
@@ -536,7 +555,10 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () {
-                  ref.read(favoritesProvider.notifier).toggleFavorite(car.id);
+                  Provider.of<FavoritesProvider>(
+                    context,
+                    listen: false,
+                  ).toggleFavorite(car.id);
                 },
                 icon: Icon(
                   boolisFavorite ? Icons.check : Icons.add,
@@ -547,9 +569,7 @@ class _CarDetailScreenState extends ConsumerState<CarDetailScreen> {
                   style: GoogleFonts.inter(color: onSurface),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                    color: onSurface.withValues(alpha: 0.2),
-                  ),
+                  side: BorderSide(color: onSurface.withValues(alpha: 0.2)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),

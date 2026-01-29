@@ -1,21 +1,12 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as developer;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../api/api_client.dart';
 import '../api/api_constants.dart';
 import '../shared/models/user.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
-
-// Provider for the API Client
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
-
-// Provider for Auth Service
-final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(ref.read(apiClientProvider));
-});
 
 class AuthService {
   final ApiClient _client;

@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
 import '../api/api_constants.dart';
@@ -15,27 +15,23 @@ class WeatherData {
   });
 }
 
-class WeatherState {
-  final AsyncValue<WeatherData> weather;
+class WeatherProvider extends ChangeNotifier {
+  WeatherData? _weather;
+  bool _isLoading = false;
+  String? _error;
 
-  WeatherState({required this.weather});
-
-  WeatherState copyWith({AsyncValue<WeatherData>? weather}) {
-    return WeatherState(weather: weather ?? this.weather);
-  }
-}
-
-final weatherProvider =
-    StateNotifierProvider.autoDispose<WeatherNotifier, WeatherState>((ref) {
-      return WeatherNotifier();
-    });
-
-class WeatherNotifier extends StateNotifier<WeatherState> {
-  WeatherNotifier() : super(WeatherState(weather: const AsyncValue.loading())) {
+  WeatherProvider() {
     fetchWeather();
   }
 
+  WeatherData? get weather => _weather;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
   Future<void> fetchWeather() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
     try {
       // 1. Get Location
       Position? position;
@@ -83,13 +79,12 @@ class WeatherNotifier extends StateNotifier<WeatherState> {
       final condition = data['weather'][0]['main'] as String;
       final city = data['name'] as String;
 
-      state = state.copyWith(
-        weather: AsyncValue.data(
-          WeatherData(temp: temp, condition: condition, city: city),
-        ),
-      );
-    } catch (e, st) {
-      state = state.copyWith(weather: AsyncValue.error(e, st));
+      _weather = WeatherData(temp: temp, condition: condition, city: city);
+      _isLoading = false;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
     }
+    notifyListeners();
   }
 }

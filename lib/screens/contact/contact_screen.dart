@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../api/api_constants.dart';
-import '../../services/auth_service.dart';
+import '../../api/api_client.dart';
 
-class ContactScreen extends ConsumerStatefulWidget {
+class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
 
   @override
-  ConsumerState<ContactScreen> createState() => _ContactScreenState();
+  State<ContactScreen> createState() => _ContactScreenState();
 }
 
-class _ContactScreenState extends ConsumerState<ContactScreen> {
+class _ContactScreenState extends State<ContactScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
@@ -25,7 +25,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final client = ref.read(apiClientProvider);
+      final client = Provider.of<ApiClient>(context, listen: false);
       await client.dio.post(
         ApiConstants.contactEndpoint,
         data: {

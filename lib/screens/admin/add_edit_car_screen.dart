@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../shared/models/car.dart';
 import '../../services/car_service.dart';
 import '../../providers/inventory_provider.dart';
-import 'admin_fleet_screen.dart'; // for carListProvider
 
-class AddEditCarScreen extends ConsumerStatefulWidget {
+class AddEditCarScreen extends StatefulWidget {
   final int? carId;
   final Car? car;
 
   const AddEditCarScreen({super.key, this.carId, this.car});
 
   @override
-  ConsumerState<AddEditCarScreen> createState() => _AddEditCarScreenState();
+  State<AddEditCarScreen> createState() => _AddEditCarScreenState();
 }
 
-class _AddEditCarScreenState extends ConsumerState<AddEditCarScreen> {
+class _AddEditCarScreenState extends State<AddEditCarScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _brandController;
@@ -105,7 +104,10 @@ class _AddEditCarScreenState extends ConsumerState<AddEditCarScreen> {
     try {
       if (widget.carId != null) {
         // Update
-        await ref.read(carServiceProvider).updateCar(widget.carId!, carData);
+        await Provider.of<CarService>(
+          context,
+          listen: false,
+        ).updateCar(widget.carId!, carData);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -113,13 +115,18 @@ class _AddEditCarScreenState extends ConsumerState<AddEditCarScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          ref.invalidate(carListProvider);
-          ref.invalidate(inventoryProvider); // Refresh main list
-          context.pop();
+          Provider.of<InventoryProvider>(
+            context,
+            listen: false,
+          ).fetchInventory(); // Refresh main list
+          context.pop(true); // Return true to indicate update
         }
       } else {
         // Create
-        await ref.read(carServiceProvider).createCar(carData);
+        await Provider.of<CarService>(
+          context,
+          listen: false,
+        ).createCar(carData);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -127,9 +134,11 @@ class _AddEditCarScreenState extends ConsumerState<AddEditCarScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          ref.invalidate(carListProvider);
-          ref.invalidate(inventoryProvider); // Refresh main list
-          context.pop();
+          Provider.of<InventoryProvider>(
+            context,
+            listen: false,
+          ).fetchInventory(); // Refresh main list
+          context.pop(true); // Return true to indicate creation
         }
       }
     } catch (e) {

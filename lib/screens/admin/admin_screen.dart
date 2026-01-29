@@ -1,28 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../services/admin_service.dart';
 import '../../providers/auth_provider.dart';
 
-final adminStatsProvider = FutureProvider<Map<String, dynamic>>((ref) {
-  return ref.read(adminServiceProvider).getStats();
-});
-
-class AdminScreen extends ConsumerWidget {
+class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final statsAsyncValue = ref.watch(adminStatsProvider);
-    final user = ref.read(authProvider).user;
+  State<AdminScreen> createState() => _AdminScreenState();
+}
+
+class _AdminScreenState extends State<AdminScreen> {
+  late Future<Map<String, dynamic>> _statsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refresh();
+    });
+  }
+
+  // Also hook into dependencies change if needed, but for now explicit load on init/refresh is fine
+  // However, because we access Provider, we need context. Provider.of in initState listen:false is valid,
+  // but it's safer to do it in didChangeDependencies or post frame callback to be sure.
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // We can initialize it here if it wasn't initialized
+    // but better to control when it loads to avoid multiple reloads
+    // _statsFuture = Provider.of<AdminService>(context, listen: false).getStats();
+    // For simplicity, let's just assign it here.
+    _statsFuture = Provider.of<AdminService>(context, listen: false).getStats();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _statsFuture = Provider.of<AdminService>(
+        context,
+        listen: false,
+      ).getStats();
+    });
+    await _statsFuture;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final user = authProvider.state.user;
 
     return Scaffold(
       backgroundColor: Colors.black, // #000000 matching web
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () async => ref.invalidate(adminStatsProvider),
+          onRefresh: _refresh,
           color: const Color(0xFFE30613),
           backgroundColor: Colors.grey[900],
           child: SingleChildScrollView(
@@ -91,7 +126,10 @@ class AdminScreen extends ConsumerWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        ref.read(authProvider.notifier).logout();
+                        Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        ).logout();
                         context.go('/login');
                       },
                       icon: const Icon(Icons.logout, color: Colors.grey),
@@ -102,135 +140,146 @@ class AdminScreen extends ConsumerWidget {
                 const SizedBox(height: 40),
 
                 // 2. Stats Grid (Cinematic Cards)
-                statsAsyncValue.when(
-                  data: (stats) => Column(
-                    children: [
-                      // Row 1
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              'Total Inventory',
-                              stats['total_cars'].toString(),
-                              const Color(0xFFE30613),
-                              Icons.directions_car,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildStatCard(
-                              'Registered Users',
-                              stats['total_users'].toString(),
-                              Colors.white,
-                              Icons.people,
-                              progressColor: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Row 2
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              'Allocations',
-                              stats['total_allocations'].toString(),
-                              Colors.blue,
-                              Icons.assignment_turned_in,
-                              progressColor: Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildStatCard(
-                              'Deposits Held',
-                              '\$${(double.parse(stats['deposits_collected']?.toString() ?? '0') / 1000).toStringAsFixed(1)}k',
-                              Colors.green,
-                              Icons.attach_money,
-                              progressColor: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Full Width Revenue
-                      _buildStatCard(
-                        'Pipeline Value',
-                        '\$${(double.parse(stats['revenue']?.toString() ?? '0') / 1000000).toStringAsFixed(1)}M',
-                        Colors.purple,
-                        Icons.trending_up,
-                        progressColor: Colors.purple,
-                        isFullWidth: true,
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // 3. Recent Inquiries List
-                      _buildSectionHeader('RECENT INQUIRIES'),
-                      const SizedBox(height: 16),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F0F0F),
-                          border: Border.all(color: Colors.white12),
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _statsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFE30613),
                         ),
-                        child: Column(
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    final stats = snapshot.data ?? {};
+
+                    return Column(
+                      children: [
+                        // Row 1
+                        Row(
                           children: [
-                            // Header
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: _tableHeader('CLIENT'),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: _tableHeader('VEHICLE'),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: _tableHeader('STATUS'),
-                                  ),
-                                ],
+                            Expanded(
+                              child: _buildStatCard(
+                                'Total Inventory',
+                                stats['total_cars'].toString(),
+                                const Color(0xFFE30613),
+                                Icons.directions_car,
                               ),
                             ),
-                            const Divider(height: 1, color: Colors.white12),
-                            // List
-                            if (stats['recent_allocations'] != null)
-                              ...(stats['recent_allocations'] as List).map((
-                                allocation,
-                              ) {
-                                return _buildInquiryRow(allocation);
-                              }),
-                            if ((stats['recent_allocations'] == null) ||
-                                (stats['recent_allocations'] as List).isEmpty)
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildStatCard(
+                                'Registered Users',
+                                stats['total_users'].toString(),
+                                Colors.white,
+                                Icons.people,
+                                progressColor: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Row 2
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatCard(
+                                'Allocations',
+                                stats['total_allocations'].toString(),
+                                Colors.blue,
+                                Icons.assignment_turned_in,
+                                progressColor: Colors.blue,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildStatCard(
+                                'Deposits Held',
+                                '\$${(double.tryParse(stats['deposits_collected']?.toString() ?? '0') ?? 0 / 1000).toStringAsFixed(1)}k',
+                                Colors.green,
+                                Icons.attach_money,
+                                progressColor: Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Full Width Revenue
+                        _buildStatCard(
+                          'Pipeline Value',
+                          '\$${(double.tryParse(stats['revenue']?.toString() ?? '0') ?? 0 / 1000000).toStringAsFixed(1)}M',
+                          Colors.purple,
+                          Icons.trending_up,
+                          progressColor: Colors.purple,
+                          isFullWidth: true,
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // 3. Recent Inquiries List
+                        _buildSectionHeader('RECENT INQUIRIES'),
+                        const SizedBox(height: 16),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F0F0F),
+                            border: Border.all(color: Colors.white12),
+                          ),
+                          child: Column(
+                            children: [
+                              // Header
                               Padding(
-                                padding: const EdgeInsets.all(24.0),
-                                child: Center(
-                                  child: Text(
-                                    'No inquiries yet',
-                                    style: GoogleFonts.inter(
-                                      color: Colors.grey,
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: _tableHeader('CLIENT'),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: _tableHeader('VEHICLE'),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: _tableHeader('STATUS'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Divider(height: 1, color: Colors.white12),
+                              // List
+                              if (stats['recent_allocations'] != null)
+                                ...(stats['recent_allocations'] as List).map((
+                                  allocation,
+                                ) {
+                                  return _buildInquiryRow(allocation);
+                                }),
+                              if ((stats['recent_allocations'] == null) ||
+                                  (stats['recent_allocations'] as List).isEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.all(24.0),
+                                  child: Center(
+                                    child: Text(
+                                      'No inquiries yet',
+                                      style: GoogleFonts.inter(
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFE30613)),
-                  ),
-                  error: (e, s) => Center(
-                    child: Text(
-                      'Error: $e',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
+                      ],
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 40),
@@ -468,6 +517,7 @@ class AdminScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
+                border: Border.all(color: Colors.white12),
               ),
               child: Icon(icon, color: Colors.white, size: 20),
             ),

@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 import '../../api/api_constants.dart';
-import '../../services/auth_service.dart';
+import '../../api/api_client.dart';
 import '../../providers/orders_provider.dart';
 import '../../services/checkout_service.dart';
 import '../../shared/models/car.dart';
 
-class CheckoutScreen extends ConsumerStatefulWidget {
+class CheckoutScreen extends StatefulWidget {
   final Map<String, dynamic> extra; // Expects {'car': Car, 'config': Map}
 
   const CheckoutScreen({super.key, required this.extra});
 
   @override
-  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
+class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _isLoading = false;
   int _step = 0; // 0: Review, 1: Payment, 2: Success
 
@@ -38,7 +38,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final client = ref.read(apiClientProvider);
+      final client = Provider.of<ApiClient>(context, listen: false);
 
       // 1. Create Payment Intent on Backend (Amount is in cents, so 5000 * 100)
       final response = await client.dio.post(
@@ -94,9 +94,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       await Stripe.instance.presentPaymentSheet();
 
       // 4. Call Backend to Confirm Allocation
-      await ref
-          .read(checkoutServiceProvider)
-          .checkout(carId: _car!.id, configuration: _config);
+      if (mounted) {
+        await Provider.of<CheckoutService>(
+          context,
+          listen: false,
+        ).checkout(carId: _car!.id, configuration: _config);
+      }
 
       // 5. On Success
       if (mounted) {
@@ -361,7 +364,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  ref.invalidate(ordersProvider); // Refresh My Garage
+                  Provider.of<OrdersProvider>(
+                    context,
+                    listen: false,
+                  ).fetchOrders(); // Refresh My Garage properly
                   // Go to favorites/garage which is at /favorites
                   context.go('/favorites');
                 },

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,13 +8,13 @@ import '../../shared/widgets/sliver_page_header.dart';
 import '../../shared/widgets/premium_list_tile.dart';
 import '../../shared/widgets/section_label.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
-    final user = authState.user;
+  Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final user = authProvider.state.user;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final onSurface = colorScheme.onSurface;
@@ -77,7 +77,10 @@ class SettingsScreen extends ConsumerWidget {
                         const SizedBox(height: 48),
                         TextButton(
                           onPressed: () {
-                            ref.read(authProvider.notifier).logout();
+                            Provider.of<AuthProvider>(
+                              context,
+                              listen: false,
+                            ).logout();
                           },
                           child: Text(
                             'LOGOUT',
@@ -107,7 +110,7 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      _buildSettingsList(context, user, ref),
+                      _buildSettingsList(context, user),
                     ],
                   ),
                 ),
@@ -174,14 +177,17 @@ class SettingsScreen extends ConsumerWidget {
 
                     Padding(
                       padding: const EdgeInsets.only(top: 24),
-                      child: _buildSettingsList(context, user, ref),
+                      child: _buildSettingsList(context, user),
                     ),
 
                     const SizedBox(height: 48),
                     Center(
                       child: TextButton(
                         onPressed: () {
-                          ref.read(authProvider.notifier).logout();
+                          Provider.of<AuthProvider>(
+                            context,
+                            listen: false,
+                          ).logout();
                         },
                         child: Text(
                           'LOGOUT',
@@ -215,7 +221,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettingsList(BuildContext context, dynamic user, WidgetRef ref) {
+  Widget _buildSettingsList(BuildContext context, dynamic user) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

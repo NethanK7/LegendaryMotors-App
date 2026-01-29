@@ -1,35 +1,38 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import '../api/api_client.dart';
 import '../api/api_constants.dart';
 import '../shared/models/car.dart';
-import '../services/auth_service.dart';
 import '../services/database_service.dart';
 
-final ordersProvider =
-    StateNotifierProvider.autoDispose<OrdersNotifier, AsyncValue<List<Car>>>((
-      ref,
-    ) {
-      final apiClient = ref.watch(apiClientProvider);
-      return OrdersNotifier(apiClient);
-    });
-
-class OrdersNotifier extends StateNotifier<AsyncValue<List<Car>>> {
+class OrdersProvider extends ChangeNotifier {
   final ApiClient _client;
+  List<Car> _orders = [];
+  bool _isLoading = false;
+  String? _error;
 
-  OrdersNotifier(this._client) : super(const AsyncValue.loading()) {
+  OrdersProvider(this._client) {
     fetchOrders();
   }
 
+  List<Car> get orders => _orders;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
   Future<void> fetchOrders() async {
-    // 1. Load from Cache Immediatey
+    // 1. Load from Cache Immediately
     try {
       final cachedCars = await DatabaseService().getCachedAllocations();
       if (cachedCars.isNotEmpty) {
-        state = AsyncValue.data(cachedCars);
+        _orders = cachedCars;
+        notifyListeners();
       }
     } catch (e) {
       // Ignore cache errors, proceed to network
     }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
     // 2. Fetch from Network
     try {
@@ -47,18 +50,17 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<Car>>> {
         listData = [];
       }
 
-      final cars = listData.map((e) => Car.fromJson(e)).toList();
-      state = AsyncValue.data(cars);
+      _orders = listData.map((e) => Car.fromJson(e)).toList();
+      _isLoading = false;
 
       // 3. Update Cache
-      await DatabaseService().cacheAllocations(cars);
-    } catch (e, st) {
-      // If network fails and we have no cache (state is still loading or empty), show error
-      // If we already showed cache, we might want to show a toast or keep showing cache
-      if (state.value == null || state.value!.isEmpty) {
-        state = AsyncValue.error(e, st);
+      await DatabaseService().cacheAllocations(_orders);
+    } catch (e) {
+      if (_orders.isEmpty) {
+        _error = e.toString();
       }
-      // Else: silently fail and keep showing cached data
+      _isLoading = false;
     }
+    notifyListeners();
   }
 }

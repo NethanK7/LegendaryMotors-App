@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 class ParallaxOffset {
@@ -7,8 +6,7 @@ class ParallaxOffset {
   ParallaxOffset(this.x, this.y);
 }
 
-// Provider that listens to the accelerometer and emits parallax offsets
-final parallaxProvider = StreamProvider<ParallaxOffset>((ref) {
+Stream<ParallaxOffset> get parallaxStream {
   return accelerometerEventStream().map((event) {
     // We normalize the values for a subtle movement effect
     // Standard gravity is ~9.8. We want a range of roughly -1 to 1 for the offset.
@@ -16,4 +14,4 @@ final parallaxProvider = StreamProvider<ParallaxOffset>((ref) {
     double y = event.y.clamp(-5.0, 5.0) / 10.0;
     return ParallaxOffset(x, y);
   });
-});
+}

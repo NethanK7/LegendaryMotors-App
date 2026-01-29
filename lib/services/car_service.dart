@@ -1,13 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_client.dart';
 import '../api/api_constants.dart';
 import '../shared/models/car.dart';
-import 'auth_service.dart'; // Import for apiClientProvider
 import 'database_service.dart';
-
-final carServiceProvider = Provider<CarService>((ref) {
-  return CarService(ref.read(apiClientProvider));
-});
 
 class CarService {
   final ApiClient _client;

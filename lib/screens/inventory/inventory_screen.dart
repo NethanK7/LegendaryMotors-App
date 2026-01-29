@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../providers/inventory_provider.dart';
 import '../../shared/models/car.dart';
 import '../../shared/widgets/premium_car_card.dart';
 import '../../shared/widgets/sliver_page_header.dart';
 
-class InventoryScreen extends ConsumerStatefulWidget {
+class InventoryScreen extends StatefulWidget {
   final String? category;
   const InventoryScreen({super.key, this.category});
 
   @override
-  ConsumerState<InventoryScreen> createState() => _InventoryScreenState();
+  State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
-class _InventoryScreenState extends ConsumerState<InventoryScreen> {
+class _InventoryScreenState extends State<InventoryScreen> {
   late String _selectedCategory;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -44,42 +44,54 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inventoryState = ref.watch(inventoryProvider);
+    final inventoryProvider = context.watch<InventoryProvider>();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final onSurface = theme.colorScheme.onSurface;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: inventoryState.when(
-        loading: () => Center(
-          child: CircularProgressIndicator(color: theme.colorScheme.primary),
-        ),
-        error: (err, stack) => _buildErrorState(ref),
-        data: (allCars) {
-          final filteredCars = _getFilteredCars(allCars);
+      body: _buildBody(context, inventoryProvider, theme, isDark, onSurface),
+    );
+  }
 
-          return OrientationBuilder(
-            builder: (context, orientation) {
-              if (orientation == Orientation.landscape) {
-                return _buildLandscapeLayout(
-                  context,
-                  filteredCars,
-                  onSurface,
-                  isDark,
-                );
-              }
-              return _buildPortraitLayout(
-                context,
-                filteredCars,
-                onSurface,
-                theme,
-                isDark,
-              );
-            },
+  Widget _buildBody(
+    BuildContext context,
+    InventoryProvider state,
+    ThemeData theme,
+    bool isDark,
+    Color onSurface,
+  ) {
+    if (state.isLoading && state.cars.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(color: theme.colorScheme.primary),
+      );
+    }
+
+    if (state.error != null && state.cars.isEmpty) {
+      return _buildErrorState(context);
+    }
+
+    final filteredCars = _getFilteredCars(state.cars);
+
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        if (orientation == Orientation.landscape) {
+          return _buildLandscapeLayout(
+            context,
+            filteredCars,
+            onSurface,
+            isDark,
           );
-        },
-      ),
+        }
+        return _buildPortraitLayout(
+          context,
+          filteredCars,
+          onSurface,
+          theme,
+          isDark,
+        );
+      },
     );
   }
 
@@ -245,7 +257,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
     );
   }
 
-  Widget _buildErrorState(WidgetRef ref) {
+  Widget _buildErrorState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -254,7 +266,10 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           const SizedBox(height: 16),
           Text('Unable to load fleet', style: GoogleFonts.inter()),
           TextButton(
-            onPressed: () => ref.refresh(inventoryProvider),
+            onPressed: () => Provider.of<InventoryProvider>(
+              context,
+              listen: false,
+            ).fetchInventory(),
             child: const Text(
               'RETRY',
               style: TextStyle(color: Color(0xFFE30613)),
