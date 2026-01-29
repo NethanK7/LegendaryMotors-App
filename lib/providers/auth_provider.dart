@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../shared/models/user.dart';
 import '../services/auth_service.dart';
 
-// State class for Authentication
 class AuthState {
   final User? user;
   final bool isLoading;
@@ -21,7 +20,6 @@ class AuthState {
   }
 }
 
-// ChangeNotifier for Auth
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
   AuthState _state = AuthState();
@@ -37,6 +35,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Handles User Login
   Future<void> login(String email, String password) async {
     _updateState(_state.copyWith(isLoading: true, error: null));
     try {
@@ -48,6 +47,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Handles User Registration
   Future<void> register(
     String name,
     String email,
@@ -64,6 +64,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Restores user session from storage (Shared Preferences/Token)
   Future<void> checkAuthStatus() async {
     _updateState(_state.copyWith(isLoading: true));
     try {
@@ -74,6 +75,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Integration with Google Sign-In
   Future<void> loginWithGoogle() async {
     _updateState(_state.copyWith(isLoading: true, error: null));
     try {
@@ -85,8 +87,9 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Logs the user out and wipes the state
   Future<void> logout() async {
     await _authService.logout();
-    _updateState(AuthState()); // Reset state
+    _updateState(AuthState()); // Resets state to default (logged out)
   }
 }

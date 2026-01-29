@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final List<Widget>? actions;
-  final Widget? leading;
+  final String title; // The text to show in the middle
+  final List<Widget>? actions; // Optional buttons on the right side
+  final Widget? leading; // Optional icon/button on the left side
   final bool centerTitle;
-  final PreferredSizeWidget? bottom;
+  final PreferredSizeWidget? bottom; // Optional TabBar or secondary header
 
   const PremiumAppBar({
     super.key,

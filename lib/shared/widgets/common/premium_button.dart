@@ -3,13 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PremiumButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final bool isPrimary;
-  final IconData? icon;
-  final double? width;
-  final EdgeInsetsGeometry? padding;
+  final String text; // Button label
+  final VoidCallback? onPressed; // Action to perform on click
+  final bool isLoading; // If true, shows a spinner instead of text
+  final bool
+  isPrimary; // Switches between Brabus Red (primary) and White/Transparent (secondary)
+  final IconData? icon; // Optional icon to show before text
+  final double? width; // Optional custom width
+  final EdgeInsetsGeometry? padding; // Optional custom padding
 
   const PremiumButton({
     super.key,
@@ -62,7 +63,7 @@ class PremiumButton extends StatelessWidget {
                     const SizedBox(width: 8),
                   ],
                   Text(
-                    text,
+                    text.toUpperCase(),
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.5,

@@ -21,9 +21,10 @@ import 'services/stripe_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await dotenv.load(fileName: ".env");
 
-  // Initialize Services
+  // Initialize Payment Gateways
   await StripeService.init();
 
   final apiClient = ApiClient();
@@ -40,6 +41,7 @@ void main() async {
         Provider.value(value: carService),
         Provider.value(value: adminService),
         Provider.value(value: checkoutService),
+
         ChangeNotifierProvider(create: (_) => AuthProvider(authService)),
         ChangeNotifierProvider(
           create: (_) => InventoryProvider(InventoryService(apiClient)),
@@ -47,6 +49,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FavoritesProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => OrdersProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
+
         ProxyProvider<AuthProvider, GoRouter>(
           update: (context, auth, previous) => AppRouter.router(auth),
         ),
@@ -66,10 +69,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Legendary Motors',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.system, // Switches between light/dark automatically
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      routerConfig: router,
+      routerConfig: router, // Uses our custom GoRouter setup
     );
   }
 }

@@ -18,19 +18,18 @@ class ApiClient {
       ),
     );
 
-    // Add interceptor to attach token
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final prefs = await SharedPreferences.getInstance();
           final token = prefs.getString('auth_token');
+
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
           return handler.next(options);
         },
         onError: (DioException e, handler) {
-          // Handle errors globally?
           return handler.next(e);
         },
       ),

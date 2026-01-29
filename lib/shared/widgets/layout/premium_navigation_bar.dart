@@ -14,17 +14,10 @@ class PremiumNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.black.withValues(alpha: 0.05),
-          ),
-        ),
+        border: Border(),
         color: theme.scaffoldBackgroundColor,
       ),
       child: Theme(
@@ -38,7 +31,7 @@ class PremiumNavigationBar extends StatelessWidget {
           onTap: onTap,
           backgroundColor: theme.scaffoldBackgroundColor,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFFE30613), // Brabus Red
+          selectedItemColor: const Color(0xFFE30613),
           unselectedItemColor: Colors.grey,
           selectedLabelStyle: GoogleFonts.inter(
             fontWeight: FontWeight.bold,

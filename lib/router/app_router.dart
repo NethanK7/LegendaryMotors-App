@@ -22,6 +22,7 @@ class AppRouter {
     return GoRouter(
       initialLocation: '/',
       refreshListenable: authProvider,
+
       redirect: (context, state) {
         final authState = authProvider.state;
         final isLoggedIn = authState.user != null;
@@ -29,8 +30,10 @@ class AppRouter {
         final isRegisterRoute = state.matchedLocation == '/register';
         final isRootRoute = state.matchedLocation == '/';
 
+        // 1. If not logged in, force the user to the Login screen
         if (!isLoggedIn && !isLoginRoute && !isRegisterRoute) return '/login';
 
+        // 2. If logged in, handle Admin vs User routing logic
         if (isLoggedIn) {
           final isAdmin = authState.user!.isAdmin;
           if (isLoginRoute) {
@@ -42,7 +45,9 @@ class AppRouter {
         }
         return null;
       },
+
       routes: [
+        // Basic Auth Routes
         GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
@@ -51,6 +56,7 @@ class AppRouter {
           path: '/register',
           builder: (context, state) => const RegisterScreen(),
         ),
+
         ShellRoute(
           builder: (context, state, child) => MainScreen(child: child),
           routes: [
@@ -87,6 +93,8 @@ class AppRouter {
             ),
           ],
         ),
+
+        // Standalone Routes
         GoRoute(
           path: '/about',
           builder: (context, state) => const AboutScreen(),
@@ -102,6 +110,8 @@ class AppRouter {
             return CheckoutScreen(extra: extra);
           },
         ),
+
+        // Admin Specific Routes
         GoRoute(
           path: '/admin',
           builder: (context, state) => const AdminScreen(),

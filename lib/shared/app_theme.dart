@@ -8,7 +8,7 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.light,
       scaffoldBackgroundColor: Colors.white,
-      useMaterial3: true,
+      useMaterial3: true, // Enables the latest Material Design features
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.light,
@@ -27,7 +27,7 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: Colors.black,
+      scaffoldBackgroundColor: Colors.black, // True black for high contrast
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,

@@ -9,12 +9,13 @@ import '../shared/models/user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  final ApiClient _client;
+  final ApiClient _client; // Our pre-configured HTTP client
 
+  // Configuration for Google Identity login
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
-    serverClientId: dotenv.env['GOOGLE_CLIENT_ID_WEB'], // Web Client ID
-    clientId: dotenv.env['GOOGLE_CLIENT_ID_IOS'], // iOS Client ID
+    serverClientId: dotenv.env['GOOGLE_CLIENT_ID_WEB'],
+    clientId: dotenv.env['GOOGLE_CLIENT_ID_IOS'],
   );
 
   AuthService(this._client);
@@ -27,12 +28,12 @@ class AuthService {
   ) async {
     try {
       final response = await _client.dio.post(
-        '/register', // Endpoint
+        '/register',
         data: {
           'name': name,
           'email': email,
           'password': password,
-          'password_confirmation': password, // Laravel expects this
+          'password_confirmation': password,
           'phone': phone,
         },
       );
@@ -51,7 +52,6 @@ class AuthService {
 
         return user;
       } else {
-        // Fallback: Login manually
         return await login(email, password);
       }
     } catch (e) {
@@ -69,13 +69,12 @@ class AuthService {
       final userData = response.data['user'];
       final token = response.data['access_token'];
 
-      // Combine user info and token
       final userMap = Map<String, dynamic>.from(userData);
       userMap['token'] = token;
 
       final user = User.fromJson(userMap);
 
-      // Save token locally for persistence
+      // Save token locally
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
 
