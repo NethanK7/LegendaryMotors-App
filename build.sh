@@ -7,41 +7,21 @@ cd "$(dirname "$0")"
 setup_flutter() {
     echo "--- SETUP PHASE ---"
     
-    # Check if flutter is already in PATH
+    # In Vercel, we need to ensure Flutter is installed
     if ! command -v flutter &> /dev/null; then
-        echo "Flutter not found in PATH, checking local installation..."
-        
-        # Check if we already cloned it to $HOME (Vercel style)
         if [ -d "$HOME/flutter" ]; then
-            echo "Found Flutter in $HOME/flutter"
             export PATH="$PATH:$HOME/flutter/bin"
-        # Check if we cloned it locally
         elif [ -d "$(pwd)/flutter" ]; then
-            echo "Found Flutter in $(pwd)/flutter"
             export PATH="$PATH:$(pwd)/flutter/bin"
         else
-            echo "Installing Flutter SDK (stable branch)..."
-            # Clone to a specific directory to avoid conflicts
-            git clone https://github.com/flutter/flutter.git -b stable --depth 1 ./flutter
-            export PATH="$PATH:$(pwd)/flutter/bin"
+            echo "Installing Flutter..."
+            git clone https://github.com/flutter/flutter.git -b stable --depth 1 $HOME/flutter
+            export PATH="$PATH:$HOME/flutter/bin"
         fi
     fi
 
-    # Verify flutter command
-    if ! command -v flutter &> /dev/null; then
-        echo "Error: Flutter command still not found. Exit code 127"
-        exit 127
-    fi
-
-    echo "Using Flutter version:"
     flutter --version
-    
-    # Pre-download binaries for web
-    echo "Downloading web SDK binaries..."
     flutter precache --web
-    
-    # Get dependencies
-    echo "Installing dependencies..."
     flutter pub get
 }
 
@@ -49,37 +29,29 @@ setup_flutter() {
 build_app() {
     echo "--- BUILD PHASE ---"
     
-    # Ensure flutter is in PATH
+    # Re-verify path for build phase
     if [ -d "$HOME/flutter" ]; then
         export PATH="$PATH:$HOME/flutter/bin"
-    elif [ -d "$(pwd)/flutter" ]; then
-        export PATH="$PATH:$(pwd)/flutter/bin"
     fi
 
     # Check if flutter is available
     if ! command -v flutter &> /dev/null; then
-        echo "Error: Flutter not found in PATH for build phase."
-        exit 1
+        echo "Error: Flutter not found. Attempting emergency setup..."
+        setup_flutter
     fi
 
-    echo "Starting Web Build (PWA enabled)..."
-    
-    # Explicitly using canvaskit for PWA premium feel, but fallback to auto
-    # We remove --web-renderer html as it might be older or causing issues
-    # We keep it simple to avoid tool crashes
-    flutter build web --release --base-href / --pwa-strategy offline-first
+    echo "Building Flutter Web..."
+    # We use --no-wasm-dry-run to stop the tool from exiting with warnings on some environments
+    flutter build web --release --base-href / --pwa-strategy offline-first --no-wasm-dry-run
     
     if [ $? -eq 0 ]; then
-        echo "Build complete! Output in build/web"
-        # Optional: Print size of build
-        du -sh build/web
+        echo "Build successful."
     else
-        echo "Error: Flutter build failed."
+        echo "Build failed."
         exit 1
     fi
 }
 
-# Run based on argument
 case "$1" in
     "setup")
         setup_flutter
@@ -88,7 +60,6 @@ case "$1" in
         build_app
         ;;
     *)
-        # Default: Setup then Build
         setup_flutter
         build_app
         ;;
