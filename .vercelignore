@@ -1,0 +1,22 @@
+# Ignore Flutter build artifacts
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Ignore development files
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Ignore iOS/Android/macOS/Windows/Linux specific files
+ios/
+android/
+macos/
+windows/
+linux/
+
+# Keep only web build
+!build/web/
