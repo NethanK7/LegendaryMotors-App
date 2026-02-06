@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'dart:io';
+import 'dart:io' as io;
 
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/layout/sliver_page_header.dart';
@@ -31,9 +32,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
       if (photo != null) {
+        if (kIsWeb) {
+          // On web, we don't save to local file system like this
+          if (mounted) {
+            Provider.of<AuthProvider>(
+              context,
+              listen: false,
+            ).updateLocalProfileImage(photo.path);
+          }
+          return;
+        }
         final appDir = await getApplicationDocumentsDirectory();
         final fileName = path.basename(photo.path);
-        final savedImage = await File(
+        final savedImage = await io.File(
           photo.path,
         ).copy('${appDir.path}/$fileName');
 
@@ -95,13 +106,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 backgroundImage:
                                     authProvider.state.localProfileImagePath !=
                                         null
-                                    ? FileImage(
-                                        File(
-                                          authProvider
-                                              .state
-                                              .localProfileImagePath!,
-                                        ),
-                                      )
+                                    ? (kIsWeb
+                                          ? NetworkImage(
+                                              authProvider
+                                                  .state
+                                                  .localProfileImagePath!,
+                                            )
+                                          : FileImage(
+                                                  io.File(
+                                                    authProvider
+                                                        .state
+                                                        .localProfileImagePath!,
+                                                  ),
+                                                )
+                                                as ImageProvider)
                                     : null,
                                 child:
                                     authProvider.state.localProfileImagePath ==
@@ -228,13 +246,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               .state
                                               .localProfileImagePath !=
                                           null
-                                      ? FileImage(
-                                          File(
-                                            authProvider
-                                                .state
-                                                .localProfileImagePath!,
-                                          ),
-                                        )
+                                      ? (kIsWeb
+                                            ? NetworkImage(
+                                                authProvider
+                                                    .state
+                                                    .localProfileImagePath!,
+                                              )
+                                            : FileImage(
+                                                    io.File(
+                                                      authProvider
+                                                          .state
+                                                          .localProfileImagePath!,
+                                                    ),
+                                                  )
+                                                  as ImageProvider)
                                       : null,
                                   child:
                                       authProvider

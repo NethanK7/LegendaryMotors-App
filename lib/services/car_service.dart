@@ -60,7 +60,9 @@ class CarService {
     try {
       final response = await _client.dio.post('/admin/cars', data: carData);
       final newCar = Car.fromJson(response.data);
-      await DatabaseService().insertCar(newCar);
+      if (!kIsWeb) {
+        await DatabaseService().insertCar(newCar);
+      }
       return newCar;
     } catch (e) {
       throw Exception('Failed to create car: ${e.toString()}');
@@ -71,7 +73,9 @@ class CarService {
     try {
       final response = await _client.dio.put('/admin/cars/$id', data: carData);
       final updatedCar = Car.fromJson(response.data);
-      await DatabaseService().updateCar(updatedCar);
+      if (!kIsWeb) {
+        await DatabaseService().updateCar(updatedCar);
+      }
       return updatedCar;
     } catch (e) {
       throw Exception('Failed to update car: ${e.toString()}');
@@ -81,7 +85,9 @@ class CarService {
   Future<void> deleteCar(int id) async {
     try {
       await _client.dio.delete('/admin/cars/$id');
-      await DatabaseService().deleteCar(id);
+      if (!kIsWeb) {
+        await DatabaseService().deleteCar(id);
+      }
     } catch (e) {
       throw Exception('Failed to delete car: ${e.toString()}');
     }
