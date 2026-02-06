@@ -34,6 +34,6 @@ flutter pub get
 
 # Build for web
 echo "Building for web..."
-flutter build web --release
+flutter build web --release --no-wasm-dry-run
 
 echo "Build complete! Output in build/web"
