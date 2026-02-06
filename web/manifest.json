@@ -1,11 +1,11 @@
 {
-    "name": "Legendary Motors",
-    "short_name": "Legendary",
+    "name": "mobile_app",
+    "short_name": "mobile_app",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0A0A0A",
-    "theme_color": "#E30613",
-    "description": "Premium luxury car showcase and showroom locator",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
