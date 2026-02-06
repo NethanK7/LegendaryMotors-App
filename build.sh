@@ -3,7 +3,7 @@
 # Install Flutter if not already installed
 if [ ! -d "$HOME/flutter" ]; then
   echo "Installing Flutter..."
-  git clone https://github.com/flutter/flutter.git -b stable $HOME/flutter
+  git clone https://github.com/flutter/flutter.git -b stable --depth 1 $HOME/flutter
 fi
 
 # Add Flutter to PATH
@@ -16,6 +16,6 @@ flutter upgrade
 flutter pub get
 
 # Build for web
-flutter build web --release --web-renderer canvaskit
+flutter build web --release
 
 echo "Build complete! Output in build/web"
