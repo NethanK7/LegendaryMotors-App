@@ -2,11 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PremiumNavigationBar extends StatelessWidget {
+class SideNavigation extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const PremiumNavigationBar({
+  const SideNavigation({
     super.key,
     required this.currentIndex,
     required this.onTap,
@@ -18,15 +18,15 @@ class PremiumNavigationBar extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-      height: 72,
+      width: 80,
+      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24), // 15% radius ≈ 24px
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -35,12 +35,10 @@ class PremiumNavigationBar extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
-            height: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: isDark
                     ? [
                         Colors.grey[900]!.withValues(alpha: 0.8),
@@ -59,37 +57,52 @@ class PremiumNavigationBar extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(24),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 24),
                 _buildNavItem(
                   context,
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
-                  label: 'HOME',
+                  label: 'Home',
                   index: 0,
                 ),
+                const SizedBox(height: 16),
                 _buildNavItem(
                   context,
                   icon: Icons.directions_car_outlined,
                   activeIcon: Icons.directions_car,
-                  label: 'FLEET',
+                  label: 'Fleet',
                   index: 1,
                 ),
+                const SizedBox(height: 16),
                 _buildNavItem(
                   context,
                   icon: Icons.favorite_border,
                   activeIcon: Icons.favorite,
-                  label: 'GARAGE',
+                  label: 'Garage',
                   index: 2,
                 ),
+                const SizedBox(height: 16),
                 _buildNavItem(
                   context,
                   icon: Icons.settings_outlined,
                   activeIcon: Icons.settings,
-                  label: 'PROFILE',
+                  label: 'Profile',
                   index: 3,
                 ),
+                const Spacer(),
+                // Brand logo at bottom
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(
+                    Icons.directions_car,
+                    color: const Color(0xFFE30613),
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -108,22 +121,41 @@ class PremiumNavigationBar extends StatelessWidget {
     final isActive = currentIndex == index;
     final theme = Theme.of(context);
 
-    return Expanded(
+    return Tooltip(
+      message: label,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => onTap(index),
           borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Center(
-              child: Icon(
-                isActive ? activeIcon : icon,
-                color: isActive
-                    ? const Color(0xFFE30613)
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                size: 26,
-              ),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            width: 56,
+            height: 56,
+            decoration: isActive
+                ? BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFE30613), Color(0xFFB00510)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFE30613).withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  )
+                : null,
+            child: Icon(
+              isActive ? activeIcon : icon,
+              color: isActive
+                  ? Colors.white
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              size: 24,
             ),
           ),
         ),

@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
@@ -6,11 +6,12 @@ class ApiConstants {
   static String get baseUrl {
     final envUrl = dotenv.env['API_BASE_URL'];
     if (envUrl != null && envUrl.isNotEmpty) {
+      print('Using API URL from .env: $envUrl');
       return envUrl;
     }
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000/api';
-    }
+
+    // Default fallback (shouldn't hit this if .env is loaded)
+    print('Warning: API_BASE_URL not found in .env, using localhost');
     return 'http://127.0.0.1:8000/api';
   }
 

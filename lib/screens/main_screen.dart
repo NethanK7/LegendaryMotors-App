@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../shared/widgets/status/offline_banner.dart';
 import '../shared/widgets/layout/premium_navigation_bar.dart';
+import '../shared/widgets/layout/side_navigation.dart';
+import '../shared/utils/responsive_utils.dart';
 
 class MainScreen extends StatefulWidget {
   final Widget child;
@@ -41,19 +43,45 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final int selectedIndex = _calculateSelectedIndex(context);
     final theme = Theme.of(context);
+    final showMobileLayout = ResponsiveUtils.shouldShowMobileLayout(context);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Column(
-        children: [
-          const OfflineBanner(),
-          Expanded(child: widget.child),
-        ],
-      ),
-      bottomNavigationBar: PremiumNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: (index) => _onItemTapped(index, context),
-      ),
-    );
+    if (showMobileLayout) {
+      // Mobile portrait: Floating bottom nav
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: Column(
+          children: [
+            const OfflineBanner(),
+            Expanded(child: widget.child),
+          ],
+        ),
+        bottomNavigationBar: PremiumNavigationBar(
+          currentIndex: selectedIndex,
+          onTap: (index) => _onItemTapped(index, context),
+        ),
+        extendBody: true, // Allow content to go behind the floating nav
+      );
+    } else {
+      // Landscape/Tablet/Desktop: Side navigation
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: Row(
+          children: [
+            SideNavigation(
+              currentIndex: selectedIndex,
+              onTap: (index) => _onItemTapped(index, context),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  const OfflineBanner(),
+                  Expanded(child: widget.child),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

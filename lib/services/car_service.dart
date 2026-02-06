@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../api/api_client.dart';
 import '../api/api_constants.dart';
 import '../shared/models/car.dart';
 import 'database_service.dart';
+import 'mock_data_service.dart';
 
 class CarService {
   final ApiClient _client;
@@ -15,17 +17,31 @@ class CarService {
           .map((json) => Car.fromJson(json))
           .toList();
 
-      // Update Cache
-      await DatabaseService().cacheCars(cars);
+      // Update Cache (skip on web since SQLite doesn't work)
+      if (!kIsWeb) {
+        await DatabaseService().cacheCars(cars);
+      }
 
       return cars;
     } catch (e) {
-      // Fallback to SQLite Cache
-      final cachedCars = await DatabaseService().getCachedCars();
-      if (cachedCars.isNotEmpty) {
-        return cachedCars;
+      print('API fetch failed: $e');
+
+      // Try SQLite cache (mobile only)
+      if (!kIsWeb) {
+        try {
+          final cachedCars = await DatabaseService().getCachedCars();
+          if (cachedCars.isNotEmpty) {
+            print('Using cached data');
+            return cachedCars;
+          }
+        } catch (cacheError) {
+          print('Cache read failed: $cacheError');
+        }
       }
-      throw Exception('Failed to fetch cars: ${e.toString()}');
+
+      // Final fallback to mock data
+      print('Using mock data');
+      return MockDataService.getMockCars();
     }
   }
 

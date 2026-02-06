@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as latlong;
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:dio/dio.dart';
 import '../../shared/widgets/layout/sliver_page_header.dart';
 import '../../shared/models/location.dart';
 import '../../shared/widgets/common/location_list_item.dart';
@@ -17,6 +19,8 @@ class LocationsScreen extends StatefulWidget {
 
 class _LocationsScreenState extends State<LocationsScreen> {
   Position? _currentPosition;
+  List<latlong.LatLng> _routePoints = [];
+  bool _isRouting = false;
 
   late final MapController _mapController;
 
@@ -47,11 +51,19 @@ class _LocationsScreenState extends State<LocationsScreen> {
     ),
   ];
 
+  StreamSubscription<Position>? _positionStream;
+
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
     _determinePosition();
+  }
+
+  @override
+  void dispose() {
+    _positionStream?.cancel();
+    super.dispose();
   }
 
   Future<void> _determinePosition() async {
@@ -69,8 +81,37 @@ class _LocationsScreenState extends State<LocationsScreen> {
 
     if (permission == LocationPermission.deniedForever) return;
 
-    final pos = await Geolocator.getCurrentPosition();
-    setState(() => _currentPosition = pos);
+    // Get initial position
+    final pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    if (mounted) {
+      setState(() => _currentPosition = pos);
+      // Center map on user location immediately
+      _mapController.move(latlong.LatLng(pos.latitude, pos.longitude), 15);
+    }
+
+    // Subscribe to real-time updates
+    _positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 5, // Update every 5 meters
+          ),
+        ).listen((Position position) {
+          if (mounted) {
+            bool isFirstFix = _currentPosition == null;
+            setState(() {
+              _currentPosition = position;
+            });
+            if (isFirstFix) {
+              _mapController.move(
+                latlong.LatLng(position.latitude, position.longitude),
+                15,
+              );
+            }
+          }
+        });
   }
 
   double _calculateDistance(double lat, double lng) {
@@ -86,6 +127,82 @@ class _LocationsScreenState extends State<LocationsScreen> {
 
   void _onLocationTap(Location loc) {
     _mapController.move(latlong.LatLng(loc.lat, loc.lng), 15);
+  }
+
+  Future<void> _openDirections(double lat, double lng) async {
+    if (_currentPosition == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Calculating route...')));
+      return;
+    }
+
+    setState(() {
+      _isRouting = true;
+      _routePoints = [];
+    });
+
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        'https://router.project-osrm.org/route/v1/driving/'
+        '${_currentPosition!.longitude},${_currentPosition!.latitude};$lng,$lat'
+        '?overview=full&geometries=geojson',
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data['routes'] != null && (data['routes'] as List).isNotEmpty) {
+          final List<dynamic> coordinates =
+              data['routes'][0]['geometry']['coordinates'];
+
+          setState(() {
+            _routePoints = coordinates
+                .map((coord) => latlong.LatLng(coord[1], coord[0]))
+                .toList();
+            _isRouting = false;
+          });
+        } else {
+          throw Exception('No route found');
+        }
+
+        // Fit map to route
+        _fitMapToRoute();
+      }
+    } catch (e) {
+      // Fallback to straight line
+      setState(() {
+        _routePoints = [
+          latlong.LatLng(
+            _currentPosition!.latitude,
+            _currentPosition!.longitude,
+          ),
+          latlong.LatLng(lat, lng),
+        ];
+        _isRouting = false;
+      });
+
+      _fitMapToRoute();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Driving route unavailable. Top view shown.'),
+            backgroundColor: Colors.orange[800],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  void _fitMapToRoute() {
+    if (_routePoints.isNotEmpty) {
+      final bounds = LatLngBounds.fromPoints(_routePoints);
+      _mapController.fitCamera(
+        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
+      );
+    }
   }
 
   @override
@@ -174,6 +291,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
                                       location: loc,
                                       distanceInKm: dist,
                                       onTap: () => _onLocationTap(loc),
+                                      onDirectionsTap: () =>
+                                          _openDirections(loc.lat, loc.lng),
                                       isNearest: isNearest,
                                     )
                                     .animate()
@@ -226,55 +345,215 @@ class _LocationsScreenState extends State<LocationsScreen> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: const latlong.LatLng(
-              7.8731,
-              80.7718,
-            ), // Sri Lanka Center
-            initialZoom: 7,
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-            ),
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.mobile_app',
-            ),
-            MarkerLayer(
-              markers: _locations.map((loc) {
-                return Marker(
-                  point: latlong.LatLng(loc.lat, loc.lng),
-                  width: 40,
-                  height: 40,
-                  child: GestureDetector(
-                    onTap: () {
-                      _mapController.move(latlong.LatLng(loc.lat, loc.lng), 15);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${loc.name}: ${loc.address}'),
-                          backgroundColor: Colors.black,
-                          behavior: SnackBarBehavior.floating,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                onMapReady: () {
+                  if (_currentPosition != null) {
+                    _mapController.move(
+                      latlong.LatLng(
+                        _currentPosition!.latitude,
+                        _currentPosition!.longitude,
+                      ),
+                      15,
+                    );
+                  }
+                },
+                initialCenter: _currentPosition != null
+                    ? latlong.LatLng(
+                        _currentPosition!.latitude,
+                        _currentPosition!.longitude,
+                      )
+                    : const latlong.LatLng(7.8731, 80.7718), // Sri Lanka Center
+                initialZoom: _currentPosition != null ? 15 : 7,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                ),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.mobile_app',
+                ),
+                if (_routePoints.isNotEmpty)
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: _routePoints,
+                        strokeWidth: 5,
+                        color: const Color(0xFFE30613),
+                      ),
+                    ],
+                  ),
+                MarkerLayer(
+                  markers: [
+                    // User Location Marker
+                    if (_currentPosition != null)
+                      Marker(
+                        point: latlong.LatLng(
+                          _currentPosition!.latitude,
+                          _currentPosition!.longitude,
+                        ),
+                        width: 24,
+                        height: 24,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    // Showroom Markers
+                    ..._locations.map((loc) {
+                      return Marker(
+                        point: latlong.LatLng(loc.lat, loc.lng),
+                        width: 40,
+                        height: 40,
+                        child: GestureDetector(
+                          onTap: () {
+                            _mapController.move(
+                              latlong.LatLng(loc.lat, loc.lng),
+                              15,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${loc.name}: ${loc.address}'),
+                                backgroundColor: Colors.black,
+                                behavior: SnackBarBehavior.floating,
+                                action: SnackBarAction(
+                                  label: 'DIRECTIONS',
+                                  textColor: const Color(0xFFE30613),
+                                  onPressed: () =>
+                                      _openDirections(loc.lat, loc.lng),
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Icon(
+                            Icons.location_on,
+                            color: Color(0xFFE30613),
+                            size: 40,
+                          ),
                         ),
                       );
-                    },
-                    child: const Icon(
-                      Icons.location_on,
-                      color: Color(0xFFE30613),
-                      size: 40,
-                    ),
-                  ),
-                );
-              }).toList(),
+                    }),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          _buildRoutingOverlay(),
+          _buildMapControls(),
+        ],
       ),
     ).animate().fadeIn(duration: 800.ms).scale(begin: const Offset(0.9, 0.9));
+  }
+
+  Widget _buildMapControls() {
+    return Positioned(
+      bottom: 16,
+      left: 16,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            backgroundColor: Colors.white,
+            mini: true,
+            heroTag: 'zoom_in',
+            onPressed: () {
+              final currentZoom = _mapController.camera.zoom;
+              _mapController.move(
+                _mapController.camera.center,
+                currentZoom + 1,
+              );
+            },
+            child: const Icon(Icons.add, color: Colors.black),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton(
+            backgroundColor: Colors.white,
+            mini: true,
+            heroTag: 'zoom_out',
+            onPressed: () {
+              final currentZoom = _mapController.camera.zoom;
+              _mapController.move(
+                _mapController.camera.center,
+                currentZoom - 1,
+              );
+            },
+            child: const Icon(Icons.remove, color: Colors.black),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            backgroundColor: const Color(0xFFE30613),
+            mini: true,
+            heroTag: 'recenter',
+            onPressed: () {
+              if (_currentPosition != null) {
+                _mapController.move(
+                  latlong.LatLng(
+                    _currentPosition!.latitude,
+                    _currentPosition!.longitude,
+                  ),
+                  15,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Location not valid')),
+                );
+              }
+            },
+            child: const Icon(Icons.my_location, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoutingOverlay() {
+    if (_isRouting) {
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.black87,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const CircularProgressIndicator(color: Color(0xFFE30613)),
+        ),
+      ).animate().fadeIn(duration: 300.ms);
+    }
+    if (_routePoints.isNotEmpty) {
+      return Positioned(
+        bottom: 16,
+        right: 16,
+        child: FloatingActionButton.extended(
+          backgroundColor: const Color(0xFFE30613),
+          label: const Text(
+            'CLEAR ROUTE',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          icon: const Icon(Icons.clear, color: Colors.white, size: 16),
+          onPressed: () => setState(() => _routePoints = []),
+        ),
+      ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9));
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildLocationsListSliver(ThemeData theme) {
@@ -300,6 +579,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
             location: loc,
             distanceInKm: dist,
             onTap: () => _onLocationTap(loc),
+            onDirectionsTap: () => _openDirections(loc.lat, loc.lng),
             isNearest: isNearest,
           ).animate().fadeIn(delay: (200 * index).ms).moveX(begin: 20, end: 0);
         }, childCount: sortedLocations.length),

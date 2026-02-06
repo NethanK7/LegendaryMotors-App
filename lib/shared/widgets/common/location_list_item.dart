@@ -7,6 +7,7 @@ class LocationListItem extends StatelessWidget {
   final Location location;
   final double? distanceInKm;
   final VoidCallback? onTap;
+  final VoidCallback? onDirectionsTap;
 
   final bool isNearest;
 
@@ -15,6 +16,7 @@ class LocationListItem extends StatelessWidget {
     required this.location,
     this.distanceInKm,
     this.onTap,
+    this.onDirectionsTap,
     this.isNearest = false,
   });
 
@@ -104,7 +106,22 @@ class LocationListItem extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+            // Directions Button
+            IconButton(
+              onPressed: onDirectionsTap,
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE30613).withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.directions,
+                  color: Color(0xFFE30613),
+                  size: 20,
+                ),
+              ),
+            ),
           ],
         ),
       ),
