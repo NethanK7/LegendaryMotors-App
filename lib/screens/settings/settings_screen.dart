@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,7 @@ import '../../shared/widgets/layout/sliver_page_header.dart';
 import '../../shared/widgets/common/premium_list_tile.dart';
 import '../../shared/widgets/common/section_label.dart';
 import '../../shared/widgets/common/premium_button.dart';
+import '../../services/biometric_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -33,12 +35,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       if (photo != null) {
         if (kIsWeb) {
-          // On web, we don't save to local file system like this
+          final bytes = await photo.readAsBytes();
+          final base64String = 'data:image/png;base64,${base64.encode(bytes)}';
           if (mounted) {
             Provider.of<AuthProvider>(
               context,
               listen: false,
-            ).updateLocalProfileImage(photo.path);
+            ).updateLocalProfileImage(base64String);
           }
           return;
         }
@@ -424,6 +427,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: Colors.grey,
           ),
           onTap: () => context.push('/locations'),
+        ),
+
+        const SizedBox(height: 32),
+        const SectionLabel(title: 'BIO-SECURITY'),
+        PremiumListTile(
+          title: 'Private Vault',
+          subtitle: 'Locked Collection',
+          icon: Icons.fingerprint,
+          trailing: const Icon(
+            Icons.lock_outline,
+            size: 14,
+            color: Color(0xFFE30613),
+          ),
+          onTap: () async {
+            final bio = BiometricService();
+            final available = await bio.isBiometricAvailable();
+            if (!available) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Biometrics not available on this device'),
+                  ),
+                );
+              }
+              return;
+            }
+            final success = await bio.authenticate();
+            if (success && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Access Granted: VIP Collection Unlocked'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              // Navigate to a secret screen or show extra car
+            }
+          },
         ),
       ],
     );

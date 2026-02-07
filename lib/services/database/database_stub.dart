@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/models/car.dart';
 
 class DatabaseService {
@@ -19,6 +20,14 @@ class DatabaseService {
   Future<List<Car>> getCachedCars() async => [];
   Future<void> cacheAllocations(List<Car> cars) async {}
   Future<List<Car>> getCachedAllocations() async => [];
-  Future<void> saveSetting(String key, String value) async {}
-  Future<String?> getSetting(String key) async => null;
+
+  Future<void> saveSetting(String key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
+
+  Future<String?> getSetting(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
+  }
 }
