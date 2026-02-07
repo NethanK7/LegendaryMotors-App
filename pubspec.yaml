@@ -51,6 +51,7 @@ dependencies:
   sensors_plus: ^4.0.2
   local_auth: ^2.1.8
   geolocator: ^10.1.0
+  battery_plus: ^6.0.2
 
   # UI
   google_fonts: ^6.1.0

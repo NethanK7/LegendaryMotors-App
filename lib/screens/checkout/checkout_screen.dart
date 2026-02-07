@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -53,45 +54,53 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final clientSecret = response.data['clientSecret'];
       if (clientSecret == null) throw Exception('No clientSecret received');
 
-      // 2. Initialize Payment Sheet
-      await Stripe.instance.initPaymentSheet(
-        paymentSheetParameters: SetupPaymentSheetParameters(
+      // WEB: Use confirmPayment instead of PaymentSheet
+      if (kIsWeb) {
+        await Stripe.instance.confirmPayment(
+          data: PaymentMethodParams.card(
+            paymentMethodData: PaymentMethodData(),
+          ),
           paymentIntentClientSecret: clientSecret,
-          merchantDisplayName: 'Legendary Motors',
-          style: ThemeMode.dark,
-          appearance: const PaymentSheetAppearance(
-            colors: PaymentSheetAppearanceColors(
-              background: Colors.black,
-              primary: Color(0xFFE30613),
-              componentBackground: Color(0xFF111111),
-              componentBorder: Colors.white12,
-              componentDivider: Colors.white24,
-              primaryText: Colors.white,
-              secondaryText: Colors.grey,
-              icon: Colors.white,
-              placeholderText: Colors.white54,
-            ),
-            shapes: PaymentSheetShape(borderRadius: 0, borderWidth: 1),
-            primaryButton: PaymentSheetPrimaryButtonAppearance(
-              colors: PaymentSheetPrimaryButtonTheme(
-                light: PaymentSheetPrimaryButtonThemeColors(
-                  background: Color(0xFFE30613),
-                  text: Colors.white,
-                  border: Color(0xFFE30613),
-                ),
-                dark: PaymentSheetPrimaryButtonThemeColors(
-                  background: Color(0xFFE30613),
-                  text: Colors.white,
-                  border: Color(0xFFE30613),
+        );
+      } else {
+        // MOBILE: Native Payment Sheet
+        await Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+            paymentIntentClientSecret: clientSecret,
+            merchantDisplayName: 'Legendary Motors',
+            style: ThemeMode.dark,
+            appearance: const PaymentSheetAppearance(
+              colors: PaymentSheetAppearanceColors(
+                background: Colors.black,
+                primary: Color(0xFFE30613),
+                componentBackground: Color(0xFF111111),
+                componentBorder: Colors.white12,
+                componentDivider: Colors.white24,
+                primaryText: Colors.white,
+                secondaryText: Colors.grey,
+                icon: Colors.white,
+                placeholderText: Colors.white54,
+              ),
+              shapes: PaymentSheetShape(borderRadius: 0, borderWidth: 1),
+              primaryButton: PaymentSheetPrimaryButtonAppearance(
+                colors: PaymentSheetPrimaryButtonTheme(
+                  light: PaymentSheetPrimaryButtonThemeColors(
+                    background: Color(0xFFE30613),
+                    text: Colors.white,
+                    border: Color(0xFFE30613),
+                  ),
+                  dark: PaymentSheetPrimaryButtonThemeColors(
+                    background: Color(0xFFE30613),
+                    text: Colors.white,
+                    border: Color(0xFFE30613),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-
-      // 3. Present Payment Sheet
-      await Stripe.instance.presentPaymentSheet();
+        );
+        await Stripe.instance.presentPaymentSheet();
+      }
 
       // 4. Call Backend to Confirm Allocation
       if (mounted) {

@@ -13,8 +13,8 @@ import '../../providers/auth_provider.dart';
 import '../../shared/widgets/layout/sliver_page_header.dart';
 import '../../shared/widgets/common/premium_list_tile.dart';
 import '../../shared/widgets/common/section_label.dart';
+import 'package:battery_plus/battery_plus.dart';
 import '../../shared/widgets/common/premium_button.dart';
-import '../../services/biometric_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,6 +25,21 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final ImagePicker _picker = ImagePicker();
+  final Battery _battery = Battery();
+  int _batteryLevel = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    _getBatteryLevel();
+  }
+
+  Future<void> _getBatteryLevel() async {
+    final level = await _battery.batteryLevel;
+    if (mounted) {
+      setState(() => _batteryLevel = level);
+    }
+  }
 
   Future<void> _pickImage() async {
     try {
@@ -430,39 +445,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
 
         const SizedBox(height: 32),
-        const SectionLabel(title: 'BIO-SECURITY'),
+        const SectionLabel(title: 'DEVICE HEALTH'),
         PremiumListTile(
-          title: 'Private Vault',
-          subtitle: 'Locked Collection',
-          icon: Icons.fingerprint,
-          trailing: const Icon(
-            Icons.lock_outline,
-            size: 14,
-            color: Color(0xFFE30613),
+          title: 'Power Source',
+          subtitle: 'Battery Level: $_batteryLevel%',
+          icon: Icons.battery_charging_full,
+          trailing: Text(
+            '$_batteryLevel%',
+            style: GoogleFonts.inter(
+              color: _batteryLevel < 20
+                  ? const Color(0xFFE30613)
+                  : Colors.green,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          onTap: () async {
-            final bio = BiometricService();
-            final available = await bio.isBiometricAvailable();
-            if (!available) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Biometrics not available on this device'),
-                  ),
-                );
-              }
-              return;
-            }
-            final success = await bio.authenticate();
-            if (success && context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Access Granted: VIP Collection Unlocked'),
-                  backgroundColor: Colors.green,
+          onTap: _getBatteryLevel,
+        ),
+        PremiumListTile(
+          title: 'Shake for Support',
+          subtitle: 'Global Shortcut',
+          icon: Icons.vibration,
+          trailing: const Icon(
+            Icons.check_circle_outline,
+            size: 14,
+            color: Colors.green,
+          ),
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Global Shake-to-Support is ACTIVE. Simply shake your phone anywhere in the app.',
                 ),
-              );
-              // Navigate to a secret screen or show extra car
-            }
+              ),
+            );
           },
         ),
       ],

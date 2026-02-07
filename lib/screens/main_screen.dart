@@ -4,6 +4,8 @@ import '../shared/widgets/status/offline_banner.dart';
 import '../shared/widgets/layout/premium_navigation_bar.dart';
 import '../shared/widgets/layout/side_navigation.dart';
 import '../shared/utils/responsive_utils.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'dart:async';
 
 class MainScreen extends StatefulWidget {
   final Widget child;
@@ -14,6 +16,52 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  StreamSubscription? _accelerometerSubscription;
+  DateTime? _lastShake;
+
+  @override
+  void initState() {
+    super.initState();
+    _initShake();
+  }
+
+  @override
+  void dispose() {
+    _accelerometerSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _initShake() {
+    // Basic shake detection: If combined acceleration exceeds a threshold
+    _accelerometerSubscription = accelerometerEventStream().listen((event) {
+      final double total = event.x.abs() + event.y.abs() + event.z.abs();
+      if (total > 30) {
+        // High threshold for shake
+        final now = DateTime.now();
+        if (_lastShake == null ||
+            now.difference(_lastShake!) > const Duration(seconds: 2)) {
+          _lastShake = now;
+          _onShakeDetected();
+        }
+      }
+    });
+  }
+
+  void _onShakeDetected() {
+    if (mounted) {
+      final location = GoRouterState.of(context).uri.toString();
+      if (location == '/contact') return;
+
+      context.push('/contact');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Shake detected! Connecting you to Concierge...'),
+          backgroundColor: Color(0xFFE30613),
+        ),
+      );
+    }
+  }
+
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0:
