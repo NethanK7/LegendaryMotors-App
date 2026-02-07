@@ -54,13 +54,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final clientSecret = response.data['clientSecret'];
       if (clientSecret == null) throw Exception('No clientSecret received');
 
-      // WEB: Use confirmPayment instead of PaymentSheet
+      // WEB: Use actual card data from CardField
       if (kIsWeb) {
         await Stripe.instance.confirmPayment(
-          data: PaymentMethodParams.card(
+          paymentIntentClientSecret: clientSecret,
+          data: const PaymentMethodParams.card(
             paymentMethodData: PaymentMethodData(),
           ),
-          paymentIntentClientSecret: clientSecret,
         );
       } else {
         // MOBILE: Native Payment Sheet
@@ -182,40 +182,68 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: theme.brightness == Brightness.dark
-                            ? const Color(0xFF111111)
-                            : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: onSurface.withValues(alpha: 0.1),
+                    if (kIsWeb) ...[
+                      const SizedBox(height: 32),
+                      Text(
+                        'CARD DETAILS',
+                        style: GoogleFonts.inter(
+                          color: onSurface,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                          letterSpacing: 1.0,
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.credit_card,
-                            color: Color(0xFFE30613),
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            'Stripe Secure Billing',
-                            style: GoogleFonts.inter(
-                              color: onSurface,
-                              fontWeight: FontWeight.bold,
+                      const SizedBox(height: 16),
+                      CardField(
+                        decoration: InputDecoration(
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: onSurface.withValues(alpha: 0.1),
                             ),
                           ),
-                          const Spacer(),
-                          const Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 16,
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFE30613)),
                           ),
-                        ],
+                        ),
+                        style: GoogleFonts.inter(color: onSurface),
                       ),
-                    ),
+                    ] else ...[
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: theme.brightness == Brightness.dark
+                              ? const Color(0xFF111111)
+                              : Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: onSurface.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.credit_card,
+                              color: Color(0xFFE30613),
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              'Stripe Secure Billing',
+                              style: GoogleFonts.inter(
+                                color: onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 100), // Space for sticky button
                   ],
                 ),

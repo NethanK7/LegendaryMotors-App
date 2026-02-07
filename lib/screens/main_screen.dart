@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../shared/widgets/status/offline_banner.dart';
@@ -6,6 +7,7 @@ import '../shared/widgets/layout/side_navigation.dart';
 import '../shared/utils/responsive_utils.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
+import 'dart:developer' as developer;
 
 class MainScreen extends StatefulWidget {
   final Widget child;
@@ -45,6 +47,17 @@ class _MainScreenState extends State<MainScreen> {
         }
       }
     });
+
+    // Handle PWA sensor permissions if needed
+    if (kIsWeb) {
+      _requestSensorPermission();
+    }
+  }
+
+  void _requestSensorPermission() {
+    // This is handled by user interaction in most modern browsers
+    // We can trigger a snackbar or subtle hint
+    developer.log('PWA: Sensors initialized', name: 'MainScreen');
   }
 
   void _onShakeDetected() {
