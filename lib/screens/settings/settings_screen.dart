@@ -498,25 +498,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           onTap: _getBatteryLevel,
         ),
-        PremiumListTile(
-          title: 'Shake for Support',
-          subtitle: 'Global Shortcut',
-          icon: Icons.vibration,
-          trailing: const Icon(
-            Icons.check_circle_outline,
-            size: 14,
-            color: Colors.green,
-          ),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Global Shake-to-Support is ACTIVE. Simply shake your phone anywhere in the app.',
-                ),
-              ),
-            );
-          },
-        ),
       ],
     );
   }

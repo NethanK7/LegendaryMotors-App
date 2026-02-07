@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/car.dart';
-import '../../controllers/sensors_controller.dart';
 import 'premium_button.dart';
 
 class HeroBanner extends StatelessWidget {
@@ -50,140 +49,127 @@ class HeroBannerContent extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final onSurface = theme.colorScheme.onSurface;
 
-    return StreamBuilder<ParallaxOffset>(
-      stream: parallaxStream,
-      builder: (context, snapshot) {
-        final parallax = snapshot.data ?? ParallaxOffset(0, 0);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Background Image
+        Image.network(
+          featured.imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Image.network(
+            'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop',
+            fit: BoxFit.cover,
+          ),
+        ),
+        // Cinematic Gradient (Bottom to Top)
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withValues(alpha: 0.3),
+                Colors.transparent,
+                theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
+                theme.scaffoldBackgroundColor,
+              ],
+              stops: const [0.0, 0.4, 0.8, 1.0],
+            ),
+          ),
+        ),
 
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            // Parallax Background Image (Uses Accelerometer hardware)
-            Transform.translate(
-              offset: Offset(parallax.x * 20, parallax.y * 20),
-              child: Transform.scale(
-                scale: 1.15, // Slightly larger to allow room for movement
-                child: Image.network(
-                  featured.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Image.network(
-                    'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop',
-                    fit: BoxFit.cover,
+        // Content Overlay
+        Positioned(
+          bottom: 20,
+          left: 0,
+          right: 0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white30),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: Text(
+                  'FEATURED VEHICLE',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
                   ),
                 ),
               ),
-            ),
-            // Cinematic Gradient (Bottom to Top)
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.3),
-                    Colors.transparent,
-                    theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
-                    theme.scaffoldBackgroundColor,
+              Text(
+                featured.model.toUpperCase(),
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w900,
+                  color: onSurface,
+                  height: 0.9,
+                  letterSpacing: -1.0,
+                  shadows: [
+                    Shadow(
+                      color: isDark ? Colors.black : Colors.white,
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
                   ],
-                  stops: const [0.0, 0.4, 0.8, 1.0],
+                ),
+              ).animate().fadeIn(duration: 800.ms).moveY(begin: 30, end: 0),
+
+              const SizedBox(height: 8),
+              Text(
+                featured.brand.toUpperCase(),
+                style: GoogleFonts.inter(
+                  color: onSurface.withValues(alpha: 0.7),
+                  fontSize: 14,
+                  letterSpacing: 1.5,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
 
-            // Content Overlay
-            Positioned(
-              bottom: 20,
-              left: 0,
-              right: 0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              const SizedBox(height: 32),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                  PremiumButton(
+                    text: 'DETAILS',
+                    onPressed: () => context.push(
+                      '/inventory/car/${featured.id}',
+                      extra: featured,
                     ),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white30),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: Text(
-                      'FEATURED VEHICLE',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2.0,
-                      ),
-                    ),
+                    icon: Icons.info_outline,
+                    isPrimary: isDark, // If dark theme, primary is white
+                    width: 140,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  Text(
-                    featured.model.toUpperCase(),
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w900,
-                      color: onSurface,
-                      height: 0.9,
-                      letterSpacing: -1.0,
-                      shadows: [
-                        Shadow(
-                          color: isDark ? Colors.black : Colors.white,
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                  ).animate().fadeIn(duration: 800.ms).moveY(begin: 30, end: 0),
-
-                  const SizedBox(height: 8),
-                  Text(
-                    featured.brand.toUpperCase(),
-                    style: GoogleFonts.inter(
-                      color: onSurface.withValues(alpha: 0.7),
-                      fontSize: 14,
-                      letterSpacing: 1.5,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  const SizedBox(width: 16),
+                  PremiumButton(
+                    text: 'MY LIST',
+                    onPressed: () => context.push('/favorites'),
+                    icon: Icons.add,
+                    isPrimary: false,
+                    width: 140,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-
-                  const SizedBox(height: 32),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      PremiumButton(
-                        text: 'DETAILS',
-                        onPressed: () => context.push(
-                          '/inventory/car/${featured.id}',
-                          extra: featured,
-                        ),
-                        icon: Icons.info_outline,
-                        isPrimary: isDark, // If dark theme, primary is white
-                        width: 140,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      const SizedBox(width: 16),
-                      PremiumButton(
-                        text: 'MY LIST',
-                        onPressed: () => context.push('/favorites'),
-                        icon: Icons.add,
-                        isPrimary: false,
-                        width: 140,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                    ],
-                  ).animate().fadeIn(delay: 400.ms).moveY(begin: 20, end: 0),
                 ],
-              ),
-            ),
+              ).animate().fadeIn(delay: 400.ms).moveY(begin: 20, end: 0),
+            ],
+          ),
+        ),
 
-            if (weatherDisplay != null)
-              Positioned(top: 48, left: 24, child: weatherDisplay!),
-          ],
-        );
-      },
+        if (weatherDisplay != null)
+          Positioned(top: 48, left: 24, child: weatherDisplay!),
+      ],
     );
   }
 }

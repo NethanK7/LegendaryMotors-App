@@ -48,7 +48,6 @@ dependencies:
   go_router: ^13.0.0
 
   # Sensors & Device
-  sensors_plus: ^4.0.2
   local_auth: ^2.1.8
   geolocator: ^10.1.0
   battery_plus: ^6.0.2

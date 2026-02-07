@@ -1,13 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../shared/widgets/status/offline_banner.dart';
 import '../shared/widgets/layout/premium_navigation_bar.dart';
 import '../shared/widgets/layout/side_navigation.dart';
 import '../shared/utils/responsive_utils.dart';
-import 'package:sensors_plus/sensors_plus.dart';
-import 'dart:async';
-import 'dart:developer' as developer;
 
 class MainScreen extends StatefulWidget {
   final Widget child;
@@ -18,61 +14,14 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  StreamSubscription? _accelerometerSubscription;
-  DateTime? _lastShake;
-
   @override
   void initState() {
     super.initState();
-    _initShake();
   }
 
   @override
   void dispose() {
-    _accelerometerSubscription?.cancel();
     super.dispose();
-  }
-
-  void _initShake() {
-    // Basic shake detection: If combined acceleration exceeds a threshold
-    _accelerometerSubscription = accelerometerEventStream().listen((event) {
-      final double total = event.x.abs() + event.y.abs() + event.z.abs();
-      if (total > 15) {
-        // High threshold for shake
-        final now = DateTime.now();
-        if (_lastShake == null ||
-            now.difference(_lastShake!) > const Duration(seconds: 2)) {
-          _lastShake = now;
-          _onShakeDetected();
-        }
-      }
-    });
-
-    // Handle PWA sensor permissions if needed
-    if (kIsWeb) {
-      _requestSensorPermission();
-    }
-  }
-
-  void _requestSensorPermission() {
-    // This is handled by user interaction in most modern browsers
-    // We can trigger a snackbar or subtle hint
-    developer.log('PWA: Sensors initialized', name: 'MainScreen');
-  }
-
-  void _onShakeDetected() {
-    if (mounted) {
-      final location = GoRouterState.of(context).uri.toString();
-      if (location == '/contact') return;
-
-      context.push('/contact');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Shake detected! Connecting you to Concierge...'),
-          backgroundColor: Color(0xFFE30613),
-        ),
-      );
-    }
   }
 
   void _onItemTapped(int index, BuildContext context) {
