@@ -65,6 +65,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> updateLocalProfileImage(String path) async {
     await DatabaseService().saveSetting('profile_image_path', path);
     _updateState(_state.copyWith(localProfileImagePath: path));
+
+    // If PWA/Web (Base64), try to sync with backend
+    if (path.startsWith('data:image')) {
+      await _authService.updateProfilePhoto(path);
+    }
   }
 
   final BiometricService _biometricService = BiometricService();

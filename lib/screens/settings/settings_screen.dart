@@ -35,9 +35,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _getBatteryLevel() async {
-    final level = await _battery.batteryLevel;
-    if (mounted) {
-      setState(() => _batteryLevel = level);
+    try {
+      final level = await _battery.batteryLevel;
+      if (mounted) {
+        setState(() => _batteryLevel = level);
+      }
+    } catch (e) {
+      // Battery info unavailable (Start-up or Web limitation)
+      if (mounted) {
+        setState(() => _batteryLevel = -1);
+      }
     }
   }
 
@@ -125,11 +132,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     authProvider.state.localProfileImagePath !=
                                         null
                                     ? (kIsWeb
-                                          ? NetworkImage(
-                                              authProvider
-                                                  .state
-                                                  .localProfileImagePath!,
-                                            )
+                                          ? (authProvider
+                                                    .state
+                                                    .localProfileImagePath!
+                                                    .startsWith('data:image')
+                                                ? MemoryImage(
+                                                    base64Decode(
+                                                      authProvider
+                                                          .state
+                                                          .localProfileImagePath!
+                                                          .split(',')
+                                                          .last,
+                                                    ),
+                                                  )
+                                                : NetworkImage(
+                                                        authProvider
+                                                            .state
+                                                            .localProfileImagePath!,
+                                                      )
+                                                      as ImageProvider)
                                           : FileImage(
                                                   io.File(
                                                         authProvider
@@ -266,11 +287,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               .localProfileImagePath !=
                                           null
                                       ? (kIsWeb
-                                            ? NetworkImage(
-                                                authProvider
-                                                    .state
-                                                    .localProfileImagePath!,
-                                              )
+                                            ? (authProvider
+                                                      .state
+                                                      .localProfileImagePath!
+                                                      .startsWith('data:image')
+                                                  ? MemoryImage(
+                                                      base64Decode(
+                                                        authProvider
+                                                            .state
+                                                            .localProfileImagePath!
+                                                            .split(',')
+                                                            .last,
+                                                      ),
+                                                    )
+                                                  : NetworkImage(
+                                                          authProvider
+                                                              .state
+                                                              .localProfileImagePath!,
+                                                        )
+                                                        as ImageProvider)
                                             : FileImage(
                                                     io.File(
                                                           authProvider
@@ -448,14 +483,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SectionLabel(title: 'DEVICE HEALTH'),
         PremiumListTile(
           title: 'Power Source',
-          subtitle: 'Battery Level: $_batteryLevel%',
+          subtitle: _batteryLevel >= 0
+              ? 'Battery Level: $_batteryLevel%'
+              : 'Power Status: Unknown',
           icon: Icons.battery_charging_full,
           trailing: Text(
-            '$_batteryLevel%',
+            _batteryLevel >= 0 ? '$_batteryLevel%' : 'N/A',
             style: GoogleFonts.inter(
-              color: _batteryLevel < 20
+              color: _batteryLevel < 20 && _batteryLevel >= 0
                   ? const Color(0xFFE30613)
-                  : Colors.green,
+                  : (_batteryLevel >= 0 ? Colors.green : Colors.grey),
               fontWeight: FontWeight.bold,
             ),
           ),

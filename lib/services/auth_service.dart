@@ -219,4 +219,21 @@ class AuthService {
       throw Exception('Google Login Failed: ${e.toString()}');
     }
   }
+
+  Future<void> updateProfilePhoto(String base64Image) async {
+    try {
+      // Attempt to sync with backend.
+      // This assumes a standard endpoint /user/profile-photo accepts a base64 string.
+      await _client.dio.post(
+        '/user/profile-photo',
+        data: {'photo': base64Image},
+      );
+    } catch (e) {
+      developer.log(
+        'Warning: Backend photo sync failed (Endpoint might differ): $e',
+        name: 'AuthService',
+      );
+      // We continue silently as local storage handles the UI
+    }
+  }
 }

@@ -9,7 +9,6 @@ import '../../providers/inventory_provider.dart';
 import '../../shared/widgets/car/car_spec_item.dart';
 import '../../shared/widgets/common/premium_button.dart';
 import '../../shared/widgets/common/tilt_parallax.dart';
-import '../../shared/widgets/car/performance_meter.dart';
 
 class CarDetailScreen extends StatefulWidget {
   final int carId;
@@ -305,8 +304,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                 _buildActions(car, isFavorite, onSurface, theme),
                 const SizedBox(height: 32),
                 _buildDescription(car, onSurface),
-                const SizedBox(height: 32),
-                const PerformanceMeter(),
                 const SizedBox(height: 100),
               ],
             ),
@@ -365,8 +362,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                 _buildActions(car, isFavorite, onSurface, theme),
                 const SizedBox(height: 32),
                 _buildDescription(car, onSurface),
-                const SizedBox(height: 32),
-                const PerformanceMeter(),
               ],
             ),
           ),

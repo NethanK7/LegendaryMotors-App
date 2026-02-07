@@ -37,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
     // Basic shake detection: If combined acceleration exceeds a threshold
     _accelerometerSubscription = accelerometerEventStream().listen((event) {
       final double total = event.x.abs() + event.y.abs() + event.z.abs();
-      if (total > 30) {
+      if (total > 15) {
         // High threshold for shake
         final now = DateTime.now();
         if (_lastShake == null ||
