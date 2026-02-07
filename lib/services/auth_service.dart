@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:developer' as developer;
 import 'package:dio/dio.dart';
 import '../api/api_client.dart';
@@ -14,8 +15,10 @@ class AuthService {
   // Configuration for Google Identity login
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
+    clientId: kIsWeb
+        ? dotenv.env['GOOGLE_CLIENT_ID_WEB']
+        : dotenv.env['GOOGLE_CLIENT_ID_IOS'],
     serverClientId: dotenv.env['GOOGLE_CLIENT_ID_WEB'],
-    clientId: dotenv.env['GOOGLE_CLIENT_ID_IOS'],
   );
 
   AuthService(this._client);
