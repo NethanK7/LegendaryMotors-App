@@ -151,75 +151,127 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         iconTheme: IconThemeData(color: onSurface),
         elevation: 0,
       ),
-      body: _step == 2
-          ? _buildSuccessView(theme, onSurface)
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildOrderSummary(theme, onSurface),
-                  const SizedBox(height: 32),
-                  Divider(color: onSurface.withValues(alpha: 0.1)),
-                  const SizedBox(height: 32),
-                  Text(
-                    'PAYMENT METHOD',
-                    style: GoogleFonts.inter(
-                      color: onSurface,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const SizedBox(height: 48),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _processPayment,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFE30613),
-                        shape: const RoundedRectangleBorder(),
+      body: SafeArea(
+        child: _step == 2
+            ? _buildSuccessView(theme, onSurface)
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildOrderSummary(theme, onSurface),
+                    const SizedBox(height: 32),
+                    Divider(color: onSurface.withValues(alpha: 0.1)),
+                    const SizedBox(height: 32),
+                    Text(
+                      'PAYMENT METHOD',
+                      style: GoogleFonts.inter(
+                        color: onSurface,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        letterSpacing: 1.0,
                       ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.lock_outline,
-                                  size: 18,
-                                  color: Colors
-                                      .white, // Always white on red button
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'PAY & REQUEST ALLOCATION',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1.0,
-                                    color: Colors
-                                        .white, // Always white on red button
-                                  ),
-                                ),
-                              ],
-                            ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Row(
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: theme.brightness == Brightness.dark
+                            ? const Color(0xFF111111)
+                            : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: onSurface.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.credit_card,
+                            color: Color(0xFFE30613),
+                          ),
+                          const SizedBox(width: 16),
+                          Text(
+                            'Stripe Secure Billing',
+                            style: GoogleFonts.inter(
+                              color: onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 100), // Space for sticky button
+                  ],
+                ),
+              ),
+      ),
+      bottomNavigationBar: _step == 2
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _processPayment,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE30613),
+                          shape: const RoundedRectangleBorder(),
+                          elevation: 0,
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.lock_outline,
+                                    size: 18,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'PAY & REQUEST ALLOCATION',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1.0,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.shield_outlined,
-                          size: 12,
+                          size: 10,
                           color: Colors.grey[600],
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Powered by Stripe',
+                          'Secure payment via Stripe',
                           style: GoogleFonts.inter(
                             color: Colors.grey[600],
                             fontSize: 10,
@@ -228,8 +280,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
     );

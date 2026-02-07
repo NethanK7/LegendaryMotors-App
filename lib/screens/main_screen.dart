@@ -52,7 +52,14 @@ class _MainScreenState extends State<MainScreen> {
         body: Column(
           children: [
             const OfflineBanner(),
-            Expanded(child: widget.child),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 80,
+                ), // Space for floating nav
+                child: widget.child,
+              ),
+            ),
           ],
         ),
         bottomNavigationBar: PremiumNavigationBar(

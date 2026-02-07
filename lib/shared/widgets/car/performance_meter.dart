@@ -72,53 +72,57 @@ class _PerformanceMeterState extends State<PerformanceMeter> {
           ),
           const SizedBox(height: 32),
           Center(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // outer ring
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white10, width: 2),
-                  ),
-                ),
-                // crosshair
-                Container(width: 150, height: 1, color: Colors.white10),
-                Container(width: 1, height: 150, color: Colors.white10),
-                // inner rings
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      width: 1,
-                    ),
-                  ),
-                ),
-                // Active Dot
-                Transform.translate(
-                  offset: Offset(_x * 75, _y * 75),
-                  child: Container(
-                    width: 12,
-                    height: 12,
+            child: RepaintBoundary(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // outer ring
+                  Container(
+                    width: 150,
+                    height: 150,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE30613),
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFE30613).withValues(alpha: 0.8),
-                          blurRadius: 15,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                      border: Border.all(color: Colors.white10, width: 2),
                     ),
                   ),
-                ),
-              ],
+                  // crosshair
+                  Container(width: 150, height: 1, color: Colors.white10),
+                  Container(width: 1, height: 150, color: Colors.white10),
+                  // inner rings
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  // Active Dot
+                  Transform.translate(
+                    offset: Offset(_x * 75, _y * 75),
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE30613),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFFE30613,
+                            ).withValues(alpha: 0.8),
+                            blurRadius: 15,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 32),

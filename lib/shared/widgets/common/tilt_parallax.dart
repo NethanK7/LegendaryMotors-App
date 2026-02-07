@@ -41,16 +41,18 @@ class _TiltParallaxState extends State<TiltParallax> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.easeOut,
-      transform: Matrix4.identity()
-        ..translateByVector3(
-          Vector3(_x * widget.intensity, _y * widget.intensity, 0.0),
-        )
-        ..rotateX(_y * 0.05)
-        ..rotateY(_x * 0.05),
-      child: widget.child,
+    return RepaintBoundary(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+        transform: Matrix4.identity()
+          ..translateByVector3(
+            Vector3(_x * widget.intensity, _y * widget.intensity, 0.0),
+          )
+          ..rotateX(_y * 0.05)
+          ..rotateY(_x * 0.05),
+        child: widget.child,
+      ),
     );
   }
 }

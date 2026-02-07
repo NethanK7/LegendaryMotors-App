@@ -60,7 +60,7 @@ build_app() {
 
     echo "Building Flutter Web..."
     # We use --no-wasm-dry-run to stop the tool from exiting with warnings on some environments
-    flutter build web --release --base-href / --pwa-strategy offline-first --no-wasm-dry-run
+    flutter build web --release --base-href / --pwa-strategy offline-first -O4 --no-wasm-dry-run
     
     if [ $? -eq 0 ]; then
         echo "Build successful."
