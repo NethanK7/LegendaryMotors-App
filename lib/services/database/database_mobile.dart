@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../shared/models/car.dart';
+import '../../shared/models/car.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
