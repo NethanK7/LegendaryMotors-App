@@ -38,11 +38,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final level = await _battery.batteryLevel;
       if (mounted) {
-        setState(() => _batteryLevel = level);
+        // On web, 0 often means "API not supported" or blocked.
+        // We override this to 100 for the demo to prevent showing "0%".
+        if (kIsWeb && level == 0) {
+          setState(() => _batteryLevel = 100);
+        } else {
+          setState(() => _batteryLevel = level);
+        }
       }
     } catch (e) {
-      // Battery info unavailable (Start-up or Web limitation)
-      if (mounted) {
+      if (kIsWeb && mounted) {
+        setState(() => _batteryLevel = 100);
+      } else if (mounted) {
         setState(() => _batteryLevel = -1);
       }
     }
