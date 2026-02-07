@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'dart:io' as io;
+import '../../shared/utils/io_utils.dart' as io;
 
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/layout/sliver_page_header.dart';
@@ -114,10 +114,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             )
                                           : FileImage(
                                                   io.File(
-                                                    authProvider
-                                                        .state
-                                                        .localProfileImagePath!,
-                                                  ),
+                                                        authProvider
+                                                            .state
+                                                            .localProfileImagePath!,
+                                                      )
+                                                      as dynamic,
                                                 )
                                                 as ImageProvider)
                                     : null,
@@ -254,10 +255,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               )
                                             : FileImage(
                                                     io.File(
-                                                      authProvider
-                                                          .state
-                                                          .localProfileImagePath!,
-                                                    ),
+                                                          authProvider
+                                                              .state
+                                                              .localProfileImagePath!,
+                                                        )
+                                                        as dynamic,
                                                   )
                                                   as ImageProvider)
                                       : null,
