@@ -20,6 +20,24 @@ setup_flutter() {
         fi
     fi
 
+    # Handle .env for Vercel (Injecting Environment Variables)
+    if [ ! -f .env ]; then
+        echo "Creating .env file from environment variables..."
+        touch .env
+        
+        # List of variables to inject if they exist in the environment
+        vars=("STRIPE_KEY" "STRIPE_SECRET" "OPENWEATHER_API_KEY" "GOOGLE_CLIENT_ID_WEB" "GOOGLE_CLIENT_ID_IOS" "API_BASE_URL")
+        
+        for var in "${vars[@]}"; do
+            if [ ! -z "${!var}" ]; then
+                echo "$var=${!var}" >> .env
+            fi
+        done
+        echo ".env file created for build."
+    else
+        echo ".env file already exists."
+    fi
+
     flutter --version
     flutter precache --web
     flutter pub get
