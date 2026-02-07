@@ -164,30 +164,28 @@ class AuthService {
       );
 
       if (idToken == null) {
-        // NOTE: On Android, idToken should be populated if serverClientId is correct.
-        // On iOS, it might require extra config.
-        // Try falling back to accessToken if your backend supports it, or check config.
         developer.log(
-          'ID Token is null! Checking if we can proceed...',
+          'WARNING: ID Token is null. Attempting to use Access Token...',
           name: 'AuthService',
         );
-        if (accessToken == null) {
-          throw Exception('Failed to retrieve authentication tokens');
-        }
       }
 
       // Send ID Token to Backend
       final endpoint = '/auth/google';
+      final tokenToSend = idToken ?? accessToken;
+
+      if (tokenToSend == null) {
+        throw Exception('No authentication tokens received from Google');
+      }
+
       developer.log(
-        'Sending token to backend at ${_client.dio.options.baseUrl}$endpoint...',
+        'Sending token to backend: ${tokenToSend.substring(0, 10)}...',
         name: 'AuthService',
       );
+
       final response = await _client.dio.post(
-        '/auth/google',
-        data: {
-          'token': idToken ?? accessToken, // Send available token
-          'provider': 'google',
-        },
+        endpoint,
+        data: {'token': tokenToSend, 'provider': 'google'},
       );
       developer.log(
         'Backend response received: ${response.statusCode}',
