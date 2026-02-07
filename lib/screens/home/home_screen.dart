@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Full-width Hero Banner (shorter for landscape)
         if (featured != null)
           SliverToBoxAdapter(
-            child: Container(
+            child: SizedBox(
               height: 300,
               child: Stack(
                 fit: StackFit.expand,
@@ -350,45 +350,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildGridSection(BuildContext context, String title, List<Car> cars) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      sliver: SliverToBoxAdapter(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader(
-              title: title,
-              onMoreTap: () {
-                String cat = '';
-                if (title.contains('Supercar')) cat = 'supercar';
-                if (title.contains('SUV')) cat = 'suv';
-                if (title.contains('Sedan')) cat = 'sedan';
-                if (title.contains('Coupe')) cat = 'coupe';
-                context.push('/inventory?category=$cat');
-              },
-            ),
-            const SizedBox(height: 16),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: cars.length > 4 ? 4 : cars.length,
-              itemBuilder: (ctx, i) {
-                return PremiumCarCard(car: cars[i], index: i);
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 

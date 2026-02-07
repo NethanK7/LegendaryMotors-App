@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:developer' as developer;
 import '../api/api_client.dart';
 import '../api/api_constants.dart';
 import '../shared/models/car.dart';
@@ -24,23 +25,23 @@ class CarService {
 
       return cars;
     } catch (e) {
-      print('API fetch failed: $e');
+      developer.log('API fetch failed: $e', name: 'CarService');
 
       // Try SQLite cache (mobile only)
       if (!kIsWeb) {
         try {
           final cachedCars = await DatabaseService().getCachedCars();
           if (cachedCars.isNotEmpty) {
-            print('Using cached data');
+            developer.log('Using cached data', name: 'CarService');
             return cachedCars;
           }
         } catch (cacheError) {
-          print('Cache read failed: $cacheError');
+          developer.log('Cache read failed: $cacheError', name: 'CarService');
         }
       }
 
       // Final fallback to mock data
-      print('Using mock data');
+      developer.log('Using mock data', name: 'CarService');
       return MockDataService.getMockCars();
     }
   }
