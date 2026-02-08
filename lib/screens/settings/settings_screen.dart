@@ -35,24 +35,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _getBatteryLevel() async {
+    // For PWA showcase, we simulate a realistic battery level
+    // because browser Battery API is often restricted/unavailable or returns 0/100.
+    if (kIsWeb) {
+      if (mounted) {
+        setState(() => _batteryLevel = 98);
+      }
+      return;
+    }
+
     try {
       final level = await _battery.batteryLevel;
       if (mounted) {
-        // On web, 0 often means "API not supported" or blocked.
-        // We override this to 100 for the demo to prevent showing "0%".
-        if (kIsWeb && level == 0) {
-          setState(() => _batteryLevel = 100);
-        } else {
-          setState(() => _batteryLevel = level);
-        }
+        setState(() => _batteryLevel = level);
       }
     } catch (e) {
-      if (kIsWeb && mounted) {
-        setState(() => _batteryLevel = 100);
-      } else if (mounted) {
+      if (mounted) {
         setState(() => _batteryLevel = -1);
       }
     }
+  }
+
+  IconData _getBatteryIcon(int level) {
+    if (level >= 95) return Icons.battery_full;
+    if (level >= 80) return Icons.battery_6_bar;
+    if (level >= 60) return Icons.battery_5_bar;
+    if (level >= 40) return Icons.battery_4_bar;
+    if (level >= 20) return Icons.battery_3_bar;
+    if (level >= 0) return Icons.battery_1_bar;
+    return Icons.battery_unknown;
   }
 
   Future<void> _pickImage() async {
@@ -493,7 +504,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: _batteryLevel >= 0
               ? 'Battery Level: $_batteryLevel%'
               : 'Power Status: Unknown',
-          icon: Icons.battery_charging_full,
+          icon: _getBatteryIcon(_batteryLevel),
           trailing: Text(
             _batteryLevel >= 0 ? '$_batteryLevel%' : 'N/A',
             style: GoogleFonts.inter(
