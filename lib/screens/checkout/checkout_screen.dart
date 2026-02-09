@@ -9,6 +9,7 @@ import '../../api/api_client.dart';
 import '../../providers/orders_provider.dart';
 import '../../services/checkout_service.dart';
 import '../../shared/models/car.dart';
+import '../../shared/app_theme.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Map<String, dynamic> extra; // Expects {'car': Car, 'config': Map}
@@ -69,7 +70,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             appearance: const PaymentSheetAppearance(
               colors: PaymentSheetAppearanceColors(
                 background: Colors.black,
-                primary: Color(0xFFE30613),
+                primary: AppTheme.primaryColor,
                 componentBackground: Color(0xFF111111),
                 componentBorder: Colors.white12,
                 componentDivider: Colors.white24,
@@ -82,14 +83,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               primaryButton: PaymentSheetPrimaryButtonAppearance(
                 colors: PaymentSheetPrimaryButtonTheme(
                   light: PaymentSheetPrimaryButtonThemeColors(
-                    background: Color(0xFFE30613),
+                    background: AppTheme.primaryColor,
                     text: Colors.white,
-                    border: Color(0xFFE30613),
+                    border: AppTheme.primaryColor,
                   ),
                   dark: PaymentSheetPrimaryButtonThemeColors(
-                    background: Color(0xFFE30613),
+                    background: AppTheme.primaryColor,
                     text: Colors.white,
-                    border: Color(0xFFE30613),
+                    border: AppTheme.primaryColor,
                   ),
                 ),
               ),
@@ -198,7 +199,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ),
                           ),
                           focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFFE30613)),
+                            borderSide: BorderSide(
+                              color: AppTheme.primaryColor,
+                            ),
                           ),
                         ),
                         style: GoogleFonts.inter(color: onSurface),
@@ -219,7 +222,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           children: [
                             const Icon(
                               Icons.credit_card,
-                              color: Color(0xFFE30613),
+                              color: AppTheme.primaryColor,
                             ),
                             const SizedBox(width: 16),
                             Text(
@@ -258,7 +261,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _processPayment,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE30613),
+                          backgroundColor: AppTheme.primaryColor,
                           shape: const RoundedRectangleBorder(),
                           elevation: 0,
                         ),
@@ -387,7 +390,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     width: 8,
                     height: 8,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFE30613),
+                      color: AppTheme.primaryColor,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -425,7 +428,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle, size: 80, color: Color(0xFFE30613)),
+            const Icon(
+              Icons.check_circle,
+              size: 80,
+              color: AppTheme.primaryColor,
+            ),
             const SizedBox(height: 32),
             Text(
               'PAYMENT SUCCESSFUL',

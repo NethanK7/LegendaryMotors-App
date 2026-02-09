@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../app_theme.dart';
 
 class PremiumButton extends StatelessWidget {
   final String text; // Button label
@@ -25,7 +26,7 @@ class PremiumButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isPrimary ? const Color(0xFFE30613) : Colors.white;
+    final backgroundColor = isPrimary ? AppTheme.primaryColor : Colors.white;
     final foregroundColor = isPrimary ? Colors.white : Colors.black;
 
     return SizedBox(

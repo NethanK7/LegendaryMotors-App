@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../app_theme.dart';
 
 class PremiumNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -119,7 +120,7 @@ class PremiumNavigationBar extends StatelessWidget {
               child: Icon(
                 isActive ? activeIcon : icon,
                 color: isActive
-                    ? const Color(0xFFE30613)
+                    ? AppTheme.primaryColor
                     : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 size: 26,
               ),

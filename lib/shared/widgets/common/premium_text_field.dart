@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../app_theme.dart';
 
 class PremiumTextField extends StatelessWidget {
   final String label;
@@ -49,7 +50,7 @@ class PremiumTextField extends StatelessWidget {
             color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
-          cursorColor: const Color(0xFFE30613),
+          cursorColor: AppTheme.primaryColor,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: GoogleFonts.inter(color: Colors.white24, fontSize: 14),
@@ -60,7 +61,7 @@ class PremiumTextField extends StatelessWidget {
               borderSide: BorderSide(color: Colors.white10),
             ),
             focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFE30613)),
+              borderSide: BorderSide(color: AppTheme.primaryColor),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

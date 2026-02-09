@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../app_theme.dart';
 
 class SectionLabel extends StatelessWidget {
   final String title;
@@ -20,7 +21,7 @@ class SectionLabel extends StatelessWidget {
       child: Text(
         title,
         style: GoogleFonts.inter(
-          color: color ?? const Color(0xFFE30613),
+          color: color ?? AppTheme.primaryColor,
           fontWeight: FontWeight.bold,
           fontSize: 10,
           letterSpacing: 1.5,

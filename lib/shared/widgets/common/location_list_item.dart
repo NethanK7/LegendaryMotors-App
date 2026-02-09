@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/location.dart';
+import '../../app_theme.dart';
 
 class LocationListItem extends StatelessWidget {
   final Location location;
@@ -74,7 +75,7 @@ class LocationListItem extends StatelessWidget {
                         Text(
                           '${distanceInKm!.toStringAsFixed(0)} KM AWAY',
                           style: GoogleFonts.inter(
-                            color: const Color(0xFFE30613),
+                            color: AppTheme.primaryColor,
                             fontWeight: FontWeight.w900,
                             fontSize: 10,
                             letterSpacing: 1,
@@ -111,12 +112,12 @@ class LocationListItem extends StatelessWidget {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE30613).withValues(alpha: 0.1),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.directions,
-                  color: Color(0xFFE30613),
+                  color: AppTheme.primaryColor,
                   size: 20,
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import '../../app_theme.dart';
 
 class OfflineBanner extends StatelessWidget {
   const OfflineBanner({super.key});
@@ -12,7 +13,7 @@ class OfflineBanner extends StatelessWidget {
         final result = snapshot.data;
         if (result == ConnectivityResult.none) {
           return Container(
-            color: const Color(0xFFE30613), // Red warning
+            color: AppTheme.primaryColor, // Red warning
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             width: double.infinity,
             child: const Text(

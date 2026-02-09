@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../app_theme.dart';
 
 class PremiumDropdown extends StatelessWidget {
   final String label;
@@ -60,7 +61,7 @@ class PremiumDropdown extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
-              borderSide: const BorderSide(color: Color(0xFFE30613)),
+              borderSide: const BorderSide(color: AppTheme.primaryColor),
             ),
           ),
         ),
