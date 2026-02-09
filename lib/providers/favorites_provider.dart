@@ -41,6 +41,7 @@ class FavoritesProvider extends ChangeNotifier {
       );
       fetchFavorites();
     } catch (e) {
+      debugPrint(e.toString());
     }
   }
 }

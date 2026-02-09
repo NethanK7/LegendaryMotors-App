@@ -50,6 +50,7 @@ class WeatherProvider extends ChangeNotifier {
           }
         }
       } catch (e) {
+        debugPrint(e.toString());
       }
 
       double lat = position?.latitude ?? 51.5207;

@@ -26,6 +26,7 @@ class OrdersProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
+      debugPrint(e.toString());
     }
 
     _isLoading = true;
