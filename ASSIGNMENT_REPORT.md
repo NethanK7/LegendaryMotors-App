@@ -49,7 +49,7 @@ INSTRUCTION TO CANDIDATES
  
 Legendary Motors is a premium mobile application designed for a luxury car dealership, offering an exclusive platform for high-net-worth clients to browse, reserve, and manage orders for high-performance vehicles. The application serves as a digital showroom, providing users with a sophisticated interface to explore a curated collection of supercars and hypercars.
  
-The app integrates advanced features such as biometric authentication for secure access, real-time weather updates based on user location to suggest driving conditions, and a seamless checkout process for vehicle allocations. By bridging the gap between physical luxury and digital convenience, Legendary Motors ensures that the experience of buying a car is as premium as the vehicle itself.
+The app integrates advanced features such as real-time weather updates based on user location to suggest driving conditions, and a seamless checkout process for vehicle allocations. By bridging the gap between physical luxury and digital convenience, Legendary Motors ensures that the experience of buying a car is as premium as the vehicle itself.
  
 The application connects to a centralized Laravel backend for real-time inventory and order management, while utilizing local storage (SQLite) to ensure performance and offline capability.
  
@@ -63,9 +63,7 @@ Legendary Motors is designed for:
  
 # App Features
  
-1. **Secure Biometric Authentication**
-   • Uses FacEID/TouchID (`local_auth`) to secure the "Legendary Garage" and personal profile.
-   • Ensures confidentiality of user data and order history.
+
 
 2. **Dynamic Home Dashboard**
    • Real-time weather updates based on GPS location.
@@ -134,7 +132,7 @@ lib/
 | `provider` | Used for state management across the application. |
 | `sqflite` | Used for local SQLite database to cache cars and orders. |
 | `go_router` | Handles navigation and routing between screens. |
-| `local_auth` | Provides biometric authentication (FaceID/TouchID). |
+
 | `geolocator` | Accesses the device's GPS to fetch current location for weather data. |
 | `battery_plus` | Monitors battery status to display level and adjust UI in settings. |
 | `shared_preferences` | Stores simple key-value data like auth tokens and theme preferences. |
@@ -160,7 +158,7 @@ SQLite is implemented via the `sqflite` package to provide an "offline-first" ex
  
 The application utilizes a multi-provider architecture to manage complex states efficiently:
 
-*   **`AuthProvider`**: Manages the complete lifecycle of a user session, including token persistence via `SharedPreferences` and integration with `BiometricService` for secure "Garage" access.
+*   **`AuthProvider`**: Manages the complete lifecycle of a user session, including token persistence via `SharedPreferences`.
 *   **`WeatherProvider`**: A specialized reactive provider that combines `Geolocator` data with the OpenWeatherMap API. It updates the UI dynamically based on the user's current city and temperature to personalize the car discovery experience.
 *   **`OrdersProvider`**: Handles the synchronization between the remote `/orders` endpoint and the local SQLite database. It manages loading states and error handling for the user's private collection.
 *   **`InventoryProvider`**: Manages the searchable and filterable car list, ensuring smooth UI transitions and efficient data handling.
@@ -199,9 +197,7 @@ The application utilizes a multi-provider architecture to manage complex states 
  
 The Legendary Motors app leverages native mobile hardware to bridge the gap between digital interface and physical context.
  
-### Biometric Authentication (`local_auth`)
-*   **Implementation**: The `BiometricService` checks for device support and prompts for FaceID/TouchID.
-*   **Feature**: Users can secure their "Private Garage" with a simple toggle in Settings. This ensures that sensitive purchase history and vehicle allocations are protected by device-level encryption.
+
 
 ### Geolocation & Weather Context (`geolocator` + OpenWeatherMap)
 *   **Implementation**: On startup, the `WeatherProvider` fetches coordinates.
@@ -226,7 +222,7 @@ The Legendary Motors app leverages native mobile hardware to bridge the gap betw
 | Test ID | Name | Description | Expected Outcome | Status |
 |:---|:---|:---|:---|:---|
 | T01 | Login Success | Valid credentials | Token stored & navigate to Home | Pass |
-| T02 | Biometric Toggle | Toggle on/off in Settings | Preferences saved to SharedPreferences | Pass |
+
 | T03 | Offline Garage | Kill internet -> Open Garage | Cars load from SQLite cache | Pass |
 | T04 | GPS Greeting | Enable Location permissions | Header shows correct city and temp | Pass |
 | T05 | Stripe Checkout | Proceed to pay deposit | Stripe Payment Sheet opens successfully | Pass |
@@ -239,7 +235,7 @@ The Legendary Motors app leverages native mobile hardware to bridge the gap betw
  
 1.  **Home Screen**: Features a glassmorphic weather card at the top, followed by horizontal scrollable list of "New Arrivals".
 2.  **Inventory Screen**: A grid view of high-quality car cards. Each card acts as a "PremiumListTile" with Hero animations to the detail view.
-3.  **Profile/Settings Screen**: A split-panel design (tablet compatible) or scrollable list (mobile) showing user details, biometric toggle, and the battery monitor. Uses `GoogleFonts.inter` for a clean look.
+3.  **Profile/Settings Screen**: A split-panel design (tablet compatible) or scrollable list (mobile) showing user details and the battery monitor. Uses `GoogleFonts.inter` for a clean look.
 4.  **Garage Screen**: Shows the user's purchased/ordered vehicles with status indicators (e.g., "In Transit", "Delivered").
 
 # LinkedIn Learning Certification
