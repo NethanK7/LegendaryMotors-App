@@ -22,6 +22,7 @@ class AuthService {
 
   AuthService(this._client);
 
+  // handle new user registration
   Future<User> register(
     String name,
     String email,
@@ -29,6 +30,7 @@ class AuthService {
     String phone,
   ) async {
     try {
+      // standard laravel auth endpoint
       final response = await _client.dio.post(
         '/register',
         data: {
@@ -40,6 +42,7 @@ class AuthService {
         },
       );
 
+      // if we get a token right away, log them in
       if (response.data['access_token'] != null) {
         final userData = response.data['user'];
         final token = response.data['access_token'];
@@ -49,11 +52,13 @@ class AuthService {
 
         final user = User.fromJson(userMap);
 
+        // persist token for next app restart
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', token);
 
         return user;
       } else {
+        // fallback: sometimes register doesn't return token immediately
         return await login(email, password);
       }
     } catch (e) {

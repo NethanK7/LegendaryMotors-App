@@ -16,16 +16,20 @@ class InventoryProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  // fetch the full inventory list on startup
   Future<void> fetchInventory() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
     try {
+      // get cars from the central service (handles caching etc)
       _cars = await _service.getCars();
       _isLoading = false;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
+      // log reliable error for dev debugging
+      debugPrint('inventory fetch failed: $e');
     }
     notifyListeners();
   }
