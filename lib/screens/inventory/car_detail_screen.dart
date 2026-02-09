@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/models/car.dart';
+import '../../shared/app_theme.dart';
 import '../../providers/favorites_provider.dart';
 import '../../providers/inventory_provider.dart';
 import '../../shared/widgets/car/car_spec_item.dart';
@@ -29,7 +30,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     Colors.black,
     Colors.white,
     Colors.grey.shade800,
-    const Color(0xFFE30613), // Brabus Red
+    AppTheme.primaryColor, // Brabus Red
   ];
 
   final List<String> _wheelOptions = [
@@ -103,7 +104,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: _selectedColor == index
-                                        ? const Color(0xFFE30613)
+                                        ? AppTheme.primaryColor
                                         : Colors.white24,
                                     width: 2,
                                   ),
@@ -126,7 +127,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                             return ChoiceChip(
                               label: Text(_wheelOptions[index].toUpperCase()),
                               selected: isSelected,
-                              selectedColor: const Color(0xFFE30613),
+                              selectedColor: AppTheme.primaryColor,
                               onSelected: (v) {
                                 setModalState(() => _selectedWheels = index);
                                 setState(() => _selectedWheels = index);
@@ -150,7 +151,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                                 _interiorOptions[index].toUpperCase(),
                               ),
                               selected: isSelected,
-                              selectedColor: const Color(0xFFE30613),
+                              selectedColor: AppTheme.primaryColor,
                               onSelected: (v) {
                                 setModalState(() => _selectedInterior = index);
                                 setState(() => _selectedInterior = index);
@@ -390,7 +391,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
         Text(
           '\$${car.price.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")}',
           style: GoogleFonts.inter(
-            color: const Color(0xFFE30613),
+            color: AppTheme.primaryColor,
             fontSize: 28,
             fontWeight: FontWeight.w900,
           ),

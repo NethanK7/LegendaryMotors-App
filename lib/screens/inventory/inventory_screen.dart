@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../shared/app_theme.dart';
 import '../../providers/inventory_provider.dart';
 import '../../shared/models/car.dart';
 import '../../shared/widgets/car/premium_car_card.dart';
@@ -191,7 +192,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFFE30613)
+                                ? AppTheme.primaryColor
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
@@ -343,7 +344,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     if (selected) setState(() => _selectedCategory = category);
                   },
                   backgroundColor: Colors.transparent,
-                  selectedColor: const Color(0xFFE30613),
+                  selectedColor: AppTheme.primaryColor,
                   labelStyle: GoogleFonts.inter(
                     color: isSelected ? Colors.white : onSurface,
                     fontWeight: FontWeight.bold,
