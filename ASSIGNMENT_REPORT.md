@@ -85,9 +85,7 @@ Legendary Motors is designed for:
 6. **Location-Based Services**
    • Automatic detection of user location to provide local weather context (e.g., "Perfect day for a convertible").
     • Showroom locator to find the nearest dealership.
-7. **Eye Protection System**
-    • Uses the device's Ambient Light Sensor (PWA compatible).
-    • Automatically switches to High-Contrast Light Mode in bright environments and Dark Mode in low light to reduce eye strain.
+
 
 8. **Google Identity Integration**
    • Seamless sign-in using Google accounts for quick onboarding.
@@ -138,7 +136,7 @@ lib/
 | `shared_preferences` | Stores simple key-value data like auth tokens and theme preferences. |
 | `flutter_stripe` | Integration for secure payment processing (Reservations). |
 | `google_fonts` | Provides premium typography (Inter/Outfit) for the UI. |
-| `dart:html` | Web-specific API for Ambient Light Sensor (PWA). |
+
 
 # Database Usage Overview (MySQL & SQLite)
  
@@ -211,11 +209,7 @@ The Legendary Motors app leverages native mobile hardware to bridge the gap betw
 *   **Implementation**: Integrated with Stripe's native Payment Sheet.
 *   **Feature**: Allows users to pay a $5,000 reservation fee instantly via credit card, Apple Pay, or Google Pay. The app handles the `clientSecret` flow to ensure PCI-compliant security.
 
-### Ambient Light Sensor (Generic Sensor API)
-*   **Implementation**: Uses `AmbientLightSensor` in PWA through JS interop.
-*   **Feature**: Provides "Eye Protection Mode" which dynamically adjusts the theme based on environmental lux levels.
-    - **Bright Light (>500 lux)**: Forces Light Mode for better readability in sun.
-    - **Dim Light (<50 lux)**: Forces Dark Mode to protect eyes from glare.
+
 
 # Test Cases
  

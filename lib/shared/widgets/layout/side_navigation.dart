@@ -92,7 +92,6 @@ class SideNavigation extends StatelessWidget {
                   index: 3,
                 ),
                 const Spacer(),
-                // Brand logo at bottom
                 Container(
                   padding: const EdgeInsets.all(12),
                   child: Icon(

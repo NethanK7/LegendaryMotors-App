@@ -48,8 +48,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (mounted) {
-        // Successful registration usually logs in automatically via the provider update
-        // Redirect to home
         context.go('/');
       }
     } catch (e) {

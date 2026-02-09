@@ -12,7 +12,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthService {
   final ApiClient _client; // Our pre-configured HTTP client
 
-  // Configuration for Google Identity login
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
     clientId: kIsWeb
@@ -77,7 +76,6 @@ class AuthService {
 
       final user = User.fromJson(userMap);
 
-      // Save token locally
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
 
@@ -102,7 +100,6 @@ class AuthService {
     await prefs.setString('saved_email', email);
   }
 
-  // Restore user session if token exists
   Future<User?> restoreUser() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -119,7 +116,6 @@ class AuthService {
 
       return User.fromJson(userMap);
     } catch (e) {
-      // Token likely expired or invalid
       await logout();
       return null;
     }
@@ -158,7 +154,6 @@ class AuthService {
         );
       }
 
-      // Send ID Token to Backend
       final endpoint = '/auth/google';
       final tokenToSend = idToken ?? accessToken;
 
@@ -210,8 +205,6 @@ class AuthService {
 
   Future<void> updateProfilePhoto(String base64Image) async {
     try {
-      // Attempt to sync with backend.
-      // This assumes a standard endpoint /user/profile-photo accepts a base64 string.
       await _client.dio.post(
         '/user/profile-photo',
         data: {'photo': base64Image},
@@ -221,7 +214,6 @@ class AuthService {
         'Warning: Backend photo sync failed (Endpoint might differ): $e',
         name: 'AuthService',
       );
-      // We continue silently as local storage handles the UI
     }
   }
 }

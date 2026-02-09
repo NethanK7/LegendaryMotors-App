@@ -31,7 +31,6 @@ class DatabaseService {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    // 1. Cars Table (Inventory)
     await db.execute('''
       CREATE TABLE cars(
         id INTEGER PRIMARY KEY,
@@ -46,7 +45,6 @@ class DatabaseService {
       )
     ''');
 
-    // 2. Allocations Table (My Garage)
     await db.execute('''
       CREATE TABLE allocations(
         id INTEGER PRIMARY KEY,
@@ -62,7 +60,6 @@ class DatabaseService {
       )
     ''');
 
-    // 3. Settings Table (Local App Settings)
     await db.execute('''
       CREATE TABLE settings(
         key TEXT PRIMARY KEY,
@@ -86,7 +83,6 @@ class DatabaseService {
     }
   }
 
-  // --- Start of CRUD Operations for Cars (Fleet) ---
 
   Future<void> cacheCars(List<Car> cars) async {
     final db = await database;
@@ -135,7 +131,6 @@ class DatabaseService {
     });
   }
 
-  // --- Start of CRUD Operations for Allocations (Garage) ---
 
   Future<void> cacheAllocations(List<Car> cars) async {
     final db = await database;
@@ -163,7 +158,6 @@ class DatabaseService {
     });
   }
 
-  // --- Start of Settings Operations ---
 
   Future<void> saveSetting(String key, String value) async {
     final db = await database;

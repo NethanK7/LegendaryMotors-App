@@ -21,6 +21,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
   Position? _currentPosition;
   List<latlong.LatLng> _routePoints = [];
   bool _isRouting = false;
+  late List<Location> _sortedLocations;
 
   late final MapController _mapController;
 
@@ -57,6 +58,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
   void initState() {
     super.initState();
     _mapController = MapController();
+    _sortedLocations = List.from(_locations);
     _determinePosition();
   }
 
@@ -64,6 +66,18 @@ class _LocationsScreenState extends State<LocationsScreen> {
   void dispose() {
     _positionStream?.cancel();
     super.dispose();
+  }
+
+  void _sortLocations() {
+    if (_currentPosition == null) return;
+
+    setState(() {
+      _sortedLocations.sort((a, b) {
+        final distA = _calculateDistance(a.lat, a.lng);
+        final distB = _calculateDistance(b.lat, b.lng);
+        return distA.compareTo(distB);
+      });
+    });
   }
 
   Future<void> _determinePosition() async {
@@ -81,22 +95,20 @@ class _LocationsScreenState extends State<LocationsScreen> {
 
     if (permission == LocationPermission.deniedForever) return;
 
-    // Get initial position
     final pos = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
     if (mounted) {
       setState(() => _currentPosition = pos);
-      // Center map on user location immediately
+      _sortLocations();
       _mapController.move(latlong.LatLng(pos.latitude, pos.longitude), 15);
     }
 
-    // Subscribe to real-time updates
     _positionStream =
         Geolocator.getPositionStream(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
-            distanceFilter: 5, // Update every 5 meters
+            distanceFilter: 50, // Updated to 50m to avoid constant re-sorting
           ),
         ).listen((Position position) {
           if (mounted) {
@@ -104,6 +116,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
             setState(() {
               _currentPosition = position;
             });
+            _sortLocations();
             if (isFirstFix) {
               _mapController.move(
                 latlong.LatLng(position.latitude, position.longitude),
@@ -166,11 +179,9 @@ class _LocationsScreenState extends State<LocationsScreen> {
           throw Exception('No route found');
         }
 
-        // Fit map to route
         _fitMapToRoute();
       }
     } catch (e) {
-      // Fallback to straight line
       setState(() {
         _routePoints = [
           latlong.LatLng(
@@ -217,7 +228,6 @@ class _LocationsScreenState extends State<LocationsScreen> {
           if (orientation == Orientation.landscape) {
             return Row(
               children: [
-                // Map Panel (Left)
                 Expanded(
                   flex: 1,
                   child: Container(
@@ -260,46 +270,30 @@ class _LocationsScreenState extends State<LocationsScreen> {
                     ),
                   ),
                 ),
-                // List Panel (Right)
                 Expanded(
                   flex: 1,
-                  child: Builder(
-                    builder: (context) {
-                      final sortedLocations = List<Location>.from(_locations);
-                      if (_currentPosition != null) {
-                        sortedLocations.sort(
-                          (a, b) => _calculateDistance(
-                            a.lat,
-                            a.lng,
-                          ).compareTo(_calculateDistance(b.lat, b.lng)),
-                        );
-                      }
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(24),
+                    itemCount: _sortedLocations.length,
+                    itemBuilder: (context, index) {
+                      final loc = _sortedLocations[index];
+                      final dist = _calculateDistance(loc.lat, loc.lng);
+                      final isNearest = _currentPosition != null && index == 0;
 
-                      return ListView.builder(
-                        padding: const EdgeInsets.all(24),
-                        itemCount: sortedLocations.length,
-                        itemBuilder: (context, index) {
-                          final loc = sortedLocations[index];
-                          final dist = _calculateDistance(loc.lat, loc.lng);
-                          final isNearest =
-                              _currentPosition != null && index == 0;
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child:
-                                LocationListItem(
-                                      location: loc,
-                                      distanceInKm: dist,
-                                      onTap: () => _onLocationTap(loc),
-                                      onDirectionsTap: () =>
-                                          _openDirections(loc.lat, loc.lng),
-                                      isNearest: isNearest,
-                                    )
-                                    .animate()
-                                    .fadeIn(delay: (100 * index).ms)
-                                    .moveX(begin: 20, end: 0),
-                          );
-                        },
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child:
+                            LocationListItem(
+                                  location: loc,
+                                  distanceInKm: dist,
+                                  onTap: () => _onLocationTap(loc),
+                                  onDirectionsTap: () =>
+                                      _openDirections(loc.lat, loc.lng),
+                                  isNearest: isNearest,
+                                )
+                                .animate()
+                                .fadeIn(delay: (100 * index).ms)
+                                .moveX(begin: 20, end: 0),
                       );
                     },
                   ),
@@ -308,7 +302,6 @@ class _LocationsScreenState extends State<LocationsScreen> {
             );
           }
 
-          // Portrait Layout
           return CustomScrollView(
             slivers: [
               const SliverPageHeader(
@@ -391,7 +384,6 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   ),
                 MarkerLayer(
                   markers: [
-                    // User Location Marker
                     if (_currentPosition != null)
                       Marker(
                         point: latlong.LatLng(
@@ -414,7 +406,6 @@ class _LocationsScreenState extends State<LocationsScreen> {
                           ),
                         ),
                       ),
-                    // Showroom Markers
                     ..._locations.map((loc) {
                       return Marker(
                         point: latlong.LatLng(loc.lat, loc.lng),
@@ -557,21 +548,11 @@ class _LocationsScreenState extends State<LocationsScreen> {
   }
 
   Widget _buildLocationsListSliver(ThemeData theme) {
-    final sortedLocations = List<Location>.from(_locations);
-    if (_currentPosition != null) {
-      sortedLocations.sort(
-        (a, b) => _calculateDistance(
-          a.lat,
-          a.lng,
-        ).compareTo(_calculateDistance(b.lat, b.lng)),
-      );
-    }
-
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
-          final loc = sortedLocations[index];
+          final loc = _sortedLocations[index];
           final dist = _calculateDistance(loc.lat, loc.lng);
           final isNearest = _currentPosition != null && index == 0;
 
@@ -582,7 +563,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
             onDirectionsTap: () => _openDirections(loc.lat, loc.lng),
             isNearest: isNearest,
           ).animate().fadeIn(delay: (200 * index).ms).moveX(begin: 20, end: 0);
-        }, childCount: sortedLocations.length),
+        }, childCount: _sortedLocations.length),
       ),
     );
   }

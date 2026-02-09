@@ -126,7 +126,6 @@ class _AdminFleetScreenState extends State<AdminFleetScreen> {
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
-                            // Confirm delete
                             showDialog(
                               context: context,
                               builder: (ctx) => AlertDialog(
@@ -166,10 +165,8 @@ class _AdminFleetScreenState extends State<AdminFleetScreen> {
                                         await carService.deleteCar(car.id);
 
                                         if (mounted) {
-                                          // Refresh local list
                                           _loadCars();
 
-                                          // Update global inventory
                                           inventoryProvider.fetchInventory();
                                           messenger.showSnackBar(
                                             const SnackBar(

@@ -8,7 +8,6 @@ class StripeService {
       Stripe.publishableKey = ApiConstants.stripePublishableKey;
       await Stripe.instance.applySettings();
     } catch (e) {
-      // Stripe not supported on this platform (e.g., macOS, Web)
       debugPrint('Stripe initialization failed: $e');
     }
   }

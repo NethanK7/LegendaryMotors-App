@@ -27,17 +27,10 @@ class _AdminScreenState extends State<AdminScreen> {
     });
   }
 
-  // Also hook into dependencies change if needed, but for now explicit load on init/refresh is fine
-  // However, because we access Provider, we need context. Provider.of in initState listen:false is valid,
-  // but it's safer to do it in didChangeDependencies or post frame callback to be sure.
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // We can initialize it here if it wasn't initialized
-    // but better to control when it loads to avoid multiple reloads
-    // _statsFuture = Provider.of<AdminService>(context, listen: false).getStats();
-    // For simplicity, let's just assign it here.
     _statsFuture = Provider.of<AdminService>(context, listen: false).getStats();
   }
 
@@ -68,7 +61,6 @@ class _AdminScreenState extends State<AdminScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. Header Section
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -142,7 +134,6 @@ class _AdminScreenState extends State<AdminScreen> {
 
                 const SizedBox(height: 40),
 
-                // 2. Stats Grid (Cinematic Cards)
                 FutureBuilder<Map<String, dynamic>>(
                   future: _statsFuture,
                   builder: (context, snapshot) {
@@ -165,7 +156,6 @@ class _AdminScreenState extends State<AdminScreen> {
 
                     return Column(
                       children: [
-                        // Row 1
                         Row(
                           children: [
                             Expanded(
@@ -188,7 +178,6 @@ class _AdminScreenState extends State<AdminScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        // Row 2
                         Row(
                           children: [
                             Expanded(
@@ -212,7 +201,6 @@ class _AdminScreenState extends State<AdminScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        // Full Width Revenue
                         AdminStatCard(
                           label: 'Pipeline Value',
                           value:
@@ -224,7 +212,6 @@ class _AdminScreenState extends State<AdminScreen> {
 
                         const SizedBox(height: 40),
 
-                        // 3. Recent Inquiries List
                         _buildSectionHeader('RECENT INQUIRIES'),
                         const SizedBox(height: 16),
                         Container(
@@ -234,7 +221,6 @@ class _AdminScreenState extends State<AdminScreen> {
                           ),
                           child: Column(
                             children: [
-                              // Header
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
                                 child: Row(
@@ -255,7 +241,6 @@ class _AdminScreenState extends State<AdminScreen> {
                                 ),
                               ),
                               const Divider(height: 1, color: Colors.white12),
-                              // List
                               if (stats['recent_allocations'] != null)
                                 ...(stats['recent_allocations'] as List).map((
                                   allocation,
@@ -285,7 +270,6 @@ class _AdminScreenState extends State<AdminScreen> {
 
                 const SizedBox(height: 40),
 
-                // 4. Quick Actions
                 _buildSectionHeader('QUICK ACTIONS'),
                 const SizedBox(height: 16),
                 QuickActionCard(
@@ -330,7 +314,6 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Widget _buildInquiryRow(dynamic allocation) {
-    // simplified since we don't have full type safety here without a model update
     final clientName = allocation['user']?['name'] ?? 'Unknown';
     final carModel = allocation['car']?['model'] ?? 'Unknown Car';
     final status = allocation['status'] ?? 'pending';

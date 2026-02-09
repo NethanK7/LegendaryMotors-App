@@ -52,7 +52,6 @@ class HeroBannerContent extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Background Image
         Image.network(
           featured.imageUrl,
           fit: BoxFit.cover,
@@ -61,7 +60,6 @@ class HeroBannerContent extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        // Cinematic Gradient (Bottom to Top)
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -78,7 +76,6 @@ class HeroBannerContent extends StatelessWidget {
           ),
         ),
 
-        // Content Overlay
         Positioned(
           bottom: 20,
           left: 0,

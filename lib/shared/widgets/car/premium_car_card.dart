@@ -44,7 +44,6 @@ class PremiumCarCard extends StatelessWidget {
                             Container(color: Colors.grey[900]),
                       ),
 
-                      // 2. Dark Gradient Overlay for text readability
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
@@ -61,7 +60,6 @@ class PremiumCarCard extends StatelessWidget {
                         ),
                       ),
 
-                      // 3. Information Overlay (Brand, Model, Price)
                       Positioned(
                         bottom: 20,
                         left: 20,

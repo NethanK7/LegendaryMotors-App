@@ -15,7 +15,6 @@ import '../../shared/widgets/common/premium_list_tile.dart';
 import '../../shared/widgets/common/section_label.dart';
 import 'package:battery_plus/battery_plus.dart';
 import '../../shared/widgets/common/premium_button.dart';
-import '../../providers/ambient_light_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -36,8 +35,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _getBatteryLevel() async {
-    // For PWA showcase, we simulate a realistic battery level
-    // because browser Battery API is often restricted/unavailable or returns 0/100.
     if (kIsWeb) {
       if (mounted) {
         setState(() => _batteryLevel = 98);
@@ -125,7 +122,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (isLandscape) {
             return Row(
               children: [
-                // LEFT PANEL: Profile
                 Expanded(
                   flex: 3,
                   child: Container(
@@ -250,7 +246,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                // RIGHT PANEL: Settings
                 Expanded(
                   flex: 5,
                   child: ListView(
@@ -273,7 +268,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           }
 
-          // PORTRAIT
           return CustomScrollView(
             slivers: [
               const SliverPageHeader(title: 'PROFILE'),
@@ -281,7 +275,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile Card
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -439,7 +432,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSettingsList(BuildContext context, dynamic user) {
-    final ambientProvider = context.watch<AmbientLightProvider>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -500,38 +492,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
 
         const SizedBox(height: 32),
-        const SectionLabel(title: 'ENVIRONMENTAL ADAPTATION'),
-        PremiumListTile(
-          title: 'Eye Protection Mode',
-          subtitle: ambientProvider.isAutoBrightnessEnabled
-              ? 'Automatically adjusting for ${ambientProvider.lux.toStringAsFixed(0)} lux'
-              : 'Auto-brightness disabled',
-          icon: ambientProvider.lux > 500
-              ? Icons.wb_sunny
-              : (ambientProvider.lux < 50
-                    ? Icons.nights_stay
-                    : Icons.brightness_auto),
-          trailing: Switch(
-            value: ambientProvider.isAutoBrightnessEnabled,
-            onChanged: (value) => ambientProvider.toggleAutoBrightness(value),
-            activeColor: const Color(0xFFE30613),
-          ),
-          onTap: () => ambientProvider.toggleAutoBrightness(
-            !ambientProvider.isAutoBrightnessEnabled,
-          ),
-        ),
-        if (!ambientProvider.isSensorSupported)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'Ambient Light Sensor not supported in this browser.',
-              style: GoogleFonts.inter(
-                color: Colors.grey,
-                fontSize: 10,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
 
         const SizedBox(height: 32),
         const SectionLabel(title: 'DEVICE HEALTH'),

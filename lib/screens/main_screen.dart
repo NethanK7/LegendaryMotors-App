@@ -56,7 +56,6 @@ class _MainScreenState extends State<MainScreen> {
     final showMobileLayout = ResponsiveUtils.shouldShowMobileLayout(context);
 
     if (showMobileLayout) {
-      // Mobile portrait: Floating bottom nav
       return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: Column(
@@ -79,7 +78,6 @@ class _MainScreenState extends State<MainScreen> {
         extendBody: true, // Allow content to go behind the floating nav
       );
     } else {
-      // Landscape/Tablet/Desktop: Side navigation
       return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: Row(

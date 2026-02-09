@@ -35,7 +35,6 @@ class _AddEditCarScreenState extends State<AddEditCarScreen> {
 
   bool _isLoading = false;
 
-  // Predefined options
   final List<String> _statusOptions = ['Available', 'Reserved', 'Sold'];
   final List<String> _categoryOptions = [
     'Supercar',
@@ -63,7 +62,6 @@ class _AddEditCarScreenState extends State<AddEditCarScreen> {
     _statusController = TextEditingController(
       text: widget.car?.status ?? 'Available',
     );
-    // Ensure status/category match available options or default to first
     if (!_statusOptions.contains(_statusController.text)) {
       _statusController.text = _statusOptions.first;
     }
@@ -108,7 +106,6 @@ class _AddEditCarScreenState extends State<AddEditCarScreen> {
 
     try {
       if (widget.carId != null) {
-        // Update
         await Provider.of<CarService>(
           context,
           listen: false,
@@ -127,7 +124,6 @@ class _AddEditCarScreenState extends State<AddEditCarScreen> {
           context.pop(true); // Return true to indicate update
         }
       } else {
-        // Create
         await Provider.of<CarService>(
           context,
           listen: false,

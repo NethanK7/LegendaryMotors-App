@@ -91,7 +91,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                           children: List.generate(_colors.length, (index) {
                             return GestureDetector(
                               onTap: () {
-                                // Update modal UI and parent screen UI
                                 setModalState(() => _selectedColor = index);
                                 setState(() => _selectedColor = index);
                               },
@@ -167,9 +166,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                   PremiumButton(
                     text: 'CONFIRM & REQUEST',
                     onPressed: () {
-                      // Note: Calc logic for price can be added here
                       Navigator.pop(context); // Close modal
-                      // Navigate to checkout with the selected configuration
                       context.push('/checkout', extra: {'car': car});
                     },
                     isPrimary: false,
@@ -277,7 +274,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     );
   }
 
-  // PORTRAIT VIEW (Traditional mobile scroll)
   Widget _buildPortraitLayout(
     Car car,
     bool isFavorite,
@@ -287,10 +283,8 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   ) {
     return CustomScrollView(
       slivers: [
-        // 1. Cinematic Header image that shrinks/expands as you scroll
         _buildHeroImage(car, isDark, onSurface),
 
-        // 2. The rest of the content inside a scrollable list
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -313,7 +307,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     );
   }
 
-  // LANDSCAPE VIEW (Optimized for tablets/rotated phones)
   Widget _buildLandscapeLayout(
     Car car,
     bool isFavorite,
@@ -394,7 +387,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        // Price formatting with commas (e.g., $250,000)
         Text(
           '\$${car.price.toStringAsFixed(0).replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]},")}',
           style: GoogleFonts.inter(
@@ -419,7 +411,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     );
   }
 
-  // Actions: Confirguration and Favorites
   Widget _buildActions(
     Car car,
     bool isFavorite,
@@ -467,7 +458,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                 errorWidget: (context, url, error) =>
                     Container(color: Colors.grey[900]),
               ),
-              // Gradient Overlay makes the text on top more readable
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

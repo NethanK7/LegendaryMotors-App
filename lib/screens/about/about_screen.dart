@@ -13,7 +13,6 @@ class AboutScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Hero Image
             Container(
               height: 250,
               width: double.infinity,

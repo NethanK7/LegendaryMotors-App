@@ -33,7 +33,6 @@ class WeatherProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      // 1. Get Location
       Position? position;
       try {
         bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -51,14 +50,11 @@ class WeatherProvider extends ChangeNotifier {
           }
         }
       } catch (e) {
-        // Location failed, use default
       }
 
-      // Default to Bottrop, Germany (Brabus HQ) if no location
       double lat = position?.latitude ?? 51.5207;
       double lon = position?.longitude ?? 6.9214;
 
-      // 2. Fetch Weather
       if (ApiConstants.openWeatherApiKey.isEmpty) {
         throw Exception('API Key missing');
       }

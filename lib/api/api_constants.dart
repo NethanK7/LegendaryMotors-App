@@ -2,7 +2,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as developer;
 
 class ApiConstants {
-  // Automatically detect platform for correct localhost address
   static String get baseUrl {
     final envUrl = dotenv.env['API_BASE_URL'];
     if (envUrl != null && envUrl.isNotEmpty) {
@@ -10,7 +9,6 @@ class ApiConstants {
       return envUrl;
     }
 
-    // Default fallback (shouldn't hit this if .env is loaded)
     developer.log(
       'Warning: API_BASE_URL not found in .env, using localhost',
       name: 'ApiConstants',

@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../shared/models/car.dart';
 
-/// Mock data service for web/offline mode
 class MockDataService {
   static List<Car> getMockCars() {
     return [

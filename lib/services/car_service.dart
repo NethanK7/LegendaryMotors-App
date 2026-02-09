@@ -18,7 +18,6 @@ class CarService {
           .map((json) => Car.fromJson(json))
           .toList();
 
-      // Update Cache (skip on web since SQLite doesn't work)
       if (!kIsWeb) {
         await DatabaseService().cacheCars(cars);
       }
@@ -27,7 +26,6 @@ class CarService {
     } catch (e) {
       developer.log('API fetch failed: $e', name: 'CarService');
 
-      // Try SQLite cache (mobile only)
       if (!kIsWeb) {
         try {
           final cachedCars = await DatabaseService().getCachedCars();
@@ -40,7 +38,6 @@ class CarService {
         }
       }
 
-      // Final fallback to mock data
       developer.log('Using mock data', name: 'CarService');
       return MockDataService.getMockCars();
     }

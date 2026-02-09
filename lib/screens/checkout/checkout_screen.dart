@@ -41,7 +41,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final client = Provider.of<ApiClient>(context, listen: false);
 
-      // 1. Create Payment Intent on Backend (Amount is in cents, so 5000 * 100)
       final response = await client.dio.post(
         ApiConstants.paymentIntentEndpoint,
         data: {
@@ -54,7 +53,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final clientSecret = response.data['clientSecret'];
       if (clientSecret == null) throw Exception('No clientSecret received');
 
-      // WEB: Use actual card data from CardField
       if (kIsWeb) {
         await Stripe.instance.confirmPayment(
           paymentIntentClientSecret: clientSecret,
@@ -63,7 +61,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         );
       } else {
-        // MOBILE: Native Payment Sheet
         await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
             paymentIntentClientSecret: clientSecret,
@@ -102,7 +99,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         await Stripe.instance.presentPaymentSheet();
       }
 
-      // 4. Call Backend to Confirm Allocation
       if (mounted) {
         await Provider.of<CheckoutService>(
           context,
@@ -110,7 +106,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ).checkout(carId: _car!.id, configuration: _config);
       }
 
-      // 5. On Success
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -457,7 +452,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     context,
                     listen: false,
                   ).fetchOrders(); // Refresh My Garage properly
-                  // Go to favorites/garage which is at /favorites
                   context.go('/favorites');
                 },
                 style: ElevatedButton.styleFrom(

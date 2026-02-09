@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../shared/models/car.dart';
 import '../services/car_service.dart';
 
-// ChangeNotifier for Inventory
 class InventoryProvider extends ChangeNotifier {
   final CarService _service;
   List<Car> _cars = [];

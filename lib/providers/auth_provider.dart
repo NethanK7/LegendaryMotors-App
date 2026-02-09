@@ -57,7 +57,6 @@ class AuthProvider extends ChangeNotifier {
     await DatabaseService().saveSetting('profile_image_path', path);
     _updateState(_state.copyWith(localProfileImagePath: path));
 
-    // If PWA/Web (Base64), try to sync with backend
     if (path.startsWith('data:image')) {
       await _authService.updateProfilePhoto(path);
     }
@@ -70,7 +69,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Handles User Login
   Future<void> login(String email, String password) async {
     _updateState(_state.copyWith(isLoading: true, error: null));
     try {
@@ -85,7 +83,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Handles User Registration
   Future<void> register(
     String name,
     String email,
@@ -102,7 +99,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Restores user session from storage (Shared Preferences/Token)
   Future<void> checkAuthStatus() async {
     _updateState(_state.copyWith(isLoading: true));
     try {
@@ -113,7 +109,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Integration with Google Sign-In
   Future<void> loginWithGoogle() async {
     _updateState(_state.copyWith(isLoading: true, error: null));
     try {
@@ -125,7 +120,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Logs the user out and wipes the state
   Future<void> logout() async {
     await _authService.logout();
     _updateState(AuthState()); // Resets state to default (logged out)

@@ -10,7 +10,6 @@ class DatabaseService {
 
   DatabaseService._internal();
 
-  // No-op for web
   Future<dynamic> get database async => null;
 
   Future<void> cacheCars(List<Car> cars) async {}

@@ -123,7 +123,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
   ) {
     return Row(
       children: [
-        // LEFT PANEL: Filters & Search
         Expanded(
           flex: 4,
           child: Container(
@@ -231,7 +230,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
           ),
         ),
 
-        // RIGHT PANEL: Grid
         Expanded(
           flex: 7,
           child: cars.isEmpty

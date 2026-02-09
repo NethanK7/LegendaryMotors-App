@@ -19,7 +19,6 @@ class OrdersProvider extends ChangeNotifier {
   String? get error => _error;
 
   Future<void> fetchOrders() async {
-    // 1. Load from Cache Immediately
     try {
       final cachedCars = await DatabaseService().getCachedAllocations();
       if (cachedCars.isNotEmpty) {
@@ -27,14 +26,12 @@ class OrdersProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      // Ignore cache errors, proceed to network
     }
 
     _isLoading = true;
     _error = null;
     notifyListeners();
 
-    // 2. Fetch from Network
     try {
       final response = await _client.dio.get(ApiConstants.ordersEndpoint);
 
@@ -53,7 +50,6 @@ class OrdersProvider extends ChangeNotifier {
       _orders = listData.map((e) => Car.fromJson(e)).toList();
       _isLoading = false;
 
-      // 3. Update Cache
       await DatabaseService().cacheAllocations(_orders);
     } catch (e) {
       if (_orders.isEmpty) {

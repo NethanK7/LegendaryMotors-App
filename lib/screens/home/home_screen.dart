@@ -62,7 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final cars = state.cars;
 
-    // Logic: Split our list of cars into categories for different UI rows
     final supercars = cars
         .where((c) => c.category.toLowerCase().contains('supercar'))
         .toList();
@@ -76,7 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
         .where((c) => c.category.toLowerCase().contains('coupe'))
         .toList();
 
-    // Featured selection: Take top 3 supercars or just the first few cars
     final featuredCars = supercars.isNotEmpty
         ? supercars.take(3).toList()
         : cars.take(3).toList();
@@ -86,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
         final isLandscape = orientation == Orientation.landscape;
 
         if (isLandscape) {
-          // Desktop/Horizontal layout
           return _buildLandscapeLayout(
             context,
             featuredCars,
@@ -97,7 +94,6 @@ class _HomeScreenState extends State<HomeScreen> {
             cars,
           );
         } else {
-          // Mobile/Portrait layout
           return _buildPortraitLayout(
             context,
             featuredCars,
@@ -125,7 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return CustomScrollView(
       slivers: [
-        // Full-width Hero Banner (shorter for landscape)
         if (featured != null)
           SliverToBoxAdapter(
             child: SizedBox(
@@ -133,14 +128,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Hero image
                   Image.network(
                     featured.imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
                         Container(color: Colors.grey[900]),
                   ),
-                  // Gradient overlay
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -158,14 +151,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  // Content
                   Positioned(
                     bottom: 30,
                     left: 40,
                     right: 40,
                     child: Row(
                       children: [
-                        // Left: Car info
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +204,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        // Right: Weather
                         const WeatherDisplay(),
                       ],
                     ),
@@ -223,7 +213,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-        // Header Section
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(40, 32, 40, 16),
           sliver: SliverToBoxAdapter(
@@ -257,13 +246,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
 
-        // Showroom Banner
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           sliver: SliverToBoxAdapter(child: _buildLocationBanner(context)),
         ),
 
-        // Grid of all categories
         if (supercars.isNotEmpty)
           _buildLandscapeGridSection(context, 'Supercars', supercars),
         if (suvs.isNotEmpty) _buildLandscapeGridSection(context, 'SUVs', suvs),
@@ -381,7 +368,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            // Page Indicators
             if (featuredCars.length > 1)
               Positioned(
                 bottom: 120, // Adjust based on HeroBannerContent layout
@@ -419,7 +405,6 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: const EdgeInsets.fromLTRB(24, 32, 24, 16),
             child: Stack(
               children: [
-                // Background Image with Parallax-like feel
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -431,7 +416,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                // Glassy Overlay
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -451,7 +435,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                // Content
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Row(

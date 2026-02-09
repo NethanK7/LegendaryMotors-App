@@ -106,7 +106,6 @@ class LocationListItem extends StatelessWidget {
                 ],
               ),
             ),
-            // Directions Button
             IconButton(
               onPressed: onDirectionsTap,
               icon: Container(

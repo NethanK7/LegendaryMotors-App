@@ -32,7 +32,6 @@ class AuthLayout extends StatelessWidget {
           return Stack(
             fit: StackFit.expand,
             children: [
-              // Dynamic Background
               Image.network(
                 backgroundUrl,
                 fit: BoxFit.cover,
@@ -54,7 +53,6 @@ class AuthLayout extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Logo Section
                         Column(
                           children: [
                             if (logo != null) ...[
@@ -90,7 +88,6 @@ class AuthLayout extends StatelessWidget {
 
                         const SizedBox(height: 48),
 
-                        // Form Container
                         GlassContainer(
                               borderRadius: BorderRadius.circular(0),
                               child: child,

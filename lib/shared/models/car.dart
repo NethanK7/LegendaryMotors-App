@@ -52,7 +52,6 @@ class Car {
       'specs': specs,
     };
   }
-  // --- SQLite Helpers ---
 
   Map<String, dynamic> toJsonForDb() {
     return {

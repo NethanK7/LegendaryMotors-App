@@ -39,7 +39,6 @@ class _ContactScreenState extends State<ContactScreen> {
       );
 
       if (mounted) {
-        // Success Dialog
         showDialog(
           context: context,
           builder: (c) => AlertDialog(

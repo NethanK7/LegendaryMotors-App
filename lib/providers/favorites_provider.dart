@@ -41,7 +41,6 @@ class FavoritesProvider extends ChangeNotifier {
       );
       fetchFavorites();
     } catch (e) {
-      // Allow UI to handle error if needed
     }
   }
 }

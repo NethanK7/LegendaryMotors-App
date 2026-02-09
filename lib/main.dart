@@ -12,7 +12,6 @@ import 'providers/favorites_provider.dart';
 import 'providers/inventory_provider.dart';
 import 'providers/orders_provider.dart';
 import 'providers/weather_provider.dart';
-import 'providers/ambient_light_provider.dart';
 
 import 'services/auth_service.dart';
 import 'services/car_service.dart';
@@ -25,7 +24,6 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
-  // Initialize Payment Gateways
   await StripeService.init();
 
   final apiClient = ApiClient();
@@ -48,7 +46,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FavoritesProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => OrdersProvider(apiClient)),
         ChangeNotifierProvider(create: (_) => WeatherProvider()),
-        ChangeNotifierProvider(create: (_) => AmbientLightProvider()),
 
         ProxyProvider<AuthProvider, GoRouter>(
           update: (context, auth, previous) => AppRouter.router(auth),
@@ -65,12 +62,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final router = Provider.of<GoRouter>(context, listen: false);
-    final ambientLight = context.watch<AmbientLightProvider>();
-
     return MaterialApp.router(
       title: 'Legendary Motors',
       debugShowCheckedModeBanner: false,
-      themeMode: ambientLight.suggestedThemeMode,
+      themeMode: ThemeMode.system,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       routerConfig: router, // Uses our custom GoRouter setup

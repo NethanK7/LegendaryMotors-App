@@ -30,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text.trim(),
         _passwordController.text,
       );
-      // Navigation is handled by router redirect based on auth state
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -50,7 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.loginWithGoogle();
-      // Navigation is handled by router redirect based on auth state
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -84,7 +82,6 @@ class _LoginScreenState extends State<LoginScreen> {
         size: 48,
       ).animate().scale(delay: 200.ms, duration: 400.ms),
       footerActions: [
-        // Debug Quick Login
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -155,7 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // _buildTextField removed as it is replaced by Reusable Widget
 
   Widget _debugButton(String label, String email, String pass) {
     return TextButton(

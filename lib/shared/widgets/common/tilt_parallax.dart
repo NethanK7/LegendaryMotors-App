@@ -8,7 +8,6 @@ class TiltParallax extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Parallax disabled due to sensor instability on some platforms
     return child;
   }
 }
