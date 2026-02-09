@@ -27,7 +27,6 @@ class _AdminScreenState extends State<AdminScreen> {
     });
   }
 
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -35,11 +34,10 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _refresh() async {
+    if (!mounted) return;
+    final adminService = Provider.of<AdminService>(context, listen: false);
     setState(() {
-      _statsFuture = Provider.of<AdminService>(
-        context,
-        listen: false,
-      ).getStats();
+      _statsFuture = adminService.getStats();
     });
     await _statsFuture;
   }

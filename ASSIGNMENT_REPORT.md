@@ -213,18 +213,25 @@ The Legendary Motors app leverages native mobile hardware to bridge the gap betw
 
 # Test Cases
  
-| Test ID | Name | Description | Expected Outcome | Status |
+| Test ID | Category | Description | Expected Outcome | Status |
 |:---|:---|:---|:---|:---|
-| T01 | Login Success | Valid credentials | Token stored & navigate to Home | Pass |
+| T01 | Auth | Login with valid credentials. | Token stored; navigate to Home. | Pass |
+| T02 | Auth | Attempt login with wrong password. | Show "Invalid credentials" error. | Pass |
+| T03 | Data | Kill internet; open Garage. | Load cars from SQLite cache. | Pass |
+| T04 | Sensors | Enable GPS permissions. | Header shows correct city/temp. | Pass |
+| T05 | Payments | Proceed to pay deposit. | Stripe Sheet opens successfully. | Pass |
+| T06 | Sensors | Check Settings UI. | Battery icon reflects system %. | Pass |
+| T07 | RBAC | Login with Admin account. | Admin section appears in settings. | Pass |
+| T08 | Third-Party | Tap Google Login. | Google Sign-in flow completes. | Pass |
+| T09 | UI | Switch to Landscape mode. | UI adopts side-by-side grid. | Pass |
+| T10 | Admin | Add car via Admin panel. | Car added to MySQL and list. | Pass |
+| T11 | Search | Filter cars by "Porsche". | Only Porsche models are displayed. | Pass |
+| T12 | Checkout | Cancel Stripe payment midway. | Returns to summary without error. | Pass |
+| T13 | Offline | Launch app without internet. | Fallback to Mock Data successful. | Pass |
+| T14 | PWA | Run Web build. | Responsive breakpoints work. | Pass |
+| T15 | Navigation | Direct link to /admin/fleet. | Redirected to login if not admin. | Pass |
 
-| T03 | Offline Garage | Kill internet -> Open Garage | Cars load from SQLite cache | Pass |
-| T04 | GPS Greeting | Enable Location permissions | Header shows correct city and temp | Pass |
-| T05 | Stripe Checkout | Proceed to pay deposit | Stripe Payment Sheet opens successfully | Pass |
-| T06 | Battery Level | Check Settings UI | Icon changes based on system battery % | Pass |
-| T07 | Admin Access | Login with admin email | 'Administration' section appears in settings | Pass |
-| T08 | Google Auth | Tap Google Login | Google Sign-in flow completes | Pass |
-
- 
+> **Note**: In addition to these manual scenarios, a unified automated suite of **65 test cases** has been implemented in `test/complete_test_suite.dart`.
 # User Interface Design and Screens
  
 1.  **Home Screen**: Features a glassmorphic weather card at the top, followed by horizontal scrollable list of "New Arrivals".
